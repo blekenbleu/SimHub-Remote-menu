@@ -50,35 +50,35 @@ namespace blekenbleu.SimHub_Remote_menu
 		internal static void Resume(ViewModel m, Control c)
 		{
 			Control.click.Clear();
-			for (int i = 0; i < OKSHmenu.Settings.midiDevs.Count; i++)
+			for (int i = 0; i < WebMenu.Settings.midiDevs.Count; i++)
 			{
 				for (int j = 0; j < MidiIn.NumberOfDevices; j++)
 				{
-					if (OKSHmenu.Settings.midiDevs[i].devName == MidiIn.DeviceInfo(j).ProductName)
+					if (WebMenu.Settings.midiDevs[i].devName == MidiIn.DeviceInfo(j).ProductName)
 					{
-						int recent = OKSHmenu.Settings.midiDevs[i].devMessage;
+						int recent = WebMenu.Settings.midiDevs[i].devMessage;
 						int mDev = j << 24;		// updated 3-bit lMidiIn index
 						int dev = recent;
 
 						dev &= 0x07000000;				// breaks if 7 < NumberOfDevices
 						recent &= 0xFFFF;
 						recent |= mDev;
-						Control.Add(recent, OKSHmenu.Settings.midiDevs[i].butName);
-						for (int k = 1 + i; k < OKSHmenu.Settings.midiDevs.Count; k++)
+						Control.Add(recent, WebMenu.Settings.midiDevs[i].butName);
+						for (int k = 1 + i; k < WebMenu.Settings.midiDevs.Count; k++)
 						{
-							if (OKSHmenu.Settings.midiDevs[k].devMessage == OKSHmenu.Settings.midiDevs[i].devMessage)
+							if (WebMenu.Settings.midiDevs[k].devMessage == WebMenu.Settings.midiDevs[i].devMessage)
 							{
 								i = k;
 								continue;	// ignore duplicate midiDevs
 							}
-							// likely multiple OKSHmenu.Settings.midiDevs per dev
-							recent = OKSHmenu.Settings.midiDevs[k].devMessage;
+							// likely multiple WebMenu.Settings.midiDevs per dev
+							recent = WebMenu.Settings.midiDevs[k].devMessage;
 							if (dev == (0x07000000 & recent))
 							{
 								i = k;
 								recent &= 0xFFFF;
 								recent |= mDev;
-								Control.Add(recent, OKSHmenu.Settings.midiDevs[i].butName);
+								Control.Add(recent, WebMenu.Settings.midiDevs[i].butName);
 							}
 							else break;
 						}
@@ -86,7 +86,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					}
 				}
 			}
-//			OKSHmenu.Info($"Resume():  {Control.click.Count} configured clicks");
+//			WebMenu.Info($"Resume():  {Control.click.Count} configured clicks");
 			Start(m, c);
 		}
 
@@ -101,11 +101,11 @@ namespace blekenbleu.SimHub_Remote_menu
 			lMidiIn.RemoveAt(i);
 		}
 
-		internal static bool Stop()			// called by OKSHmenu.cs End()
+		internal static bool Stop()			// called by WebMenu.cs End()
 		{
-
-			for (int j = lMidiIn.Count -1 ; j >= 0; j--)
-				Stop(j);
+			if (null != lMidiIn)
+				for (int j = lMidiIn.Count -1 ; j >= 0; j--)
+					Stop(j);
 			lMidiIn = null;
 			return Control.Stop();
 		}
@@ -160,7 +160,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		static void MidiIn_ErrorReceived(object sender, MidiInMessageEventArgs e)
 		{
-			OKSHmenu.Info(String.Format("MidiIn_ErrorReceived():  Message 0x{0:X8} Event {1}",
+			WebMenu.Info(String.Format("MidiIn_ErrorReceived():  Message 0x{0:X8} Event {1}",
 				e.RawMessage, e.MidiEvent));
 		}
 	}

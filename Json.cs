@@ -4,7 +4,7 @@ using System.Windows;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
-	public partial class OKSHmenu
+	public partial class WebMenu
 	{
 		// check whether current properties differ from JSON
 		bool Changed()
@@ -143,7 +143,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		}
 
 /*--------------------------------------------------------------
- ;	  invoked for CarId changes, based on this `NCalcScripts/OKSHpm.ini` entry:
+ ;	  invoked for CarId changes, based on this `NCalcScripts/WebMenu.ini` entry:
  ;		  [ExportEvent]
  ;		  name='CarChange'
  ;		  trigger=changed(200, [DataCorePlugin.GameData.CarId])
@@ -235,5 +235,5 @@ namespace blekenbleu.SimHub_Remote_menu
 			ToSlider();
 			Control.Model.ButtonVisibility = System.Windows.Visibility.Visible;	// ready
 		}	// CarChange()
-	}		// public partial class OKSHmenu
+	}		// public partial class WebMenu
 }

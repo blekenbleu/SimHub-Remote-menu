@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
-	public partial class OKSHmenu : IPlugin
+	public partial class WebMenu : IPlugin
 	{
 		bool OOpa(string msg)   // defer MessageBox.Show() until GetWPFSettingsControl()
 		{
@@ -30,7 +30,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			Steps = new List<int>() {};		// for Populate()
 
-			// property and setting names, default values and steps from OKSHpm.ini
+			// property and setting names, default values and steps from WebMenu.ini
 			string pts, ds = pluginManager.GetPropertyValue(pts = Myni + "properties")?.ToString();
 			string vts, vs = pluginManager.GetPropertyValue(vts = Myni + "values")?.ToString();
 			string sts, ss = pluginManager.GetPropertyValue(sts = Myni + "steps")?.ToString();
@@ -39,7 +39,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			 && (!(null == ss && OOpa($"'{sts}' not found")))
 			   )
 			{
-				// OKSHpm.ini defines per-car Properties
+				// WebMenu.ini defines per-car Properties
 				List<string> CarProps = new List<string>(ds.Split(','));
 				pCount = CarProps.Count;						// these are per-car
 				List<string> values = new List<string>(vs.Split(','));
@@ -55,7 +55,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				Settings.pcount = simValues.Count;
 			}
 
-			// OKSHpm.ini also optionally defines per-game Properties
+			// WebMenu.ini also optionally defines per-game Properties
 			string ptts = Myni + "gameprops";
 			string dss = pluginManager.GetPropertyValue(ptts)?.ToString();
 			string vtts = Myni + "gamevals";
@@ -84,7 +84,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				Settings.gcount = simValues.Count - Settings.pcount;
 			}			
 
-			// OKSHpm.ini also optionally defines global settings
+			// WebMenu.ini also optionally defines global settings
 			string pgts = Myni + "settings";
 			string dgs = pluginManager.GetPropertyValue(pgts)?.ToString();
 			string vgts = Myni + "setvals";
@@ -116,7 +116,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			if (0 == simValues.Count)
 			{
 				OOpa("Missing or invalid " + Myni
-					 + "properties from NCalcScripts/OKSHpm.ini");
+					 + "properties from NCalcScripts/WebMenu.ini");
 				return;
 			}
 
@@ -173,5 +173,5 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			Info($"Init():  simValues.Count = {simValues.Count}");
 		}	// Init()
-	}		// class OKSHmenu
+	}		// class WebMenu
 }

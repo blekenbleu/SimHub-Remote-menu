@@ -34,11 +34,11 @@ namespace blekenbleu.SimHub_Remote_menu
 							clients.TryRemove(c.Key, out _);
 						}
 					}
-					else OKSHmenu.Info("SSErespond():  null client!!?");
+					else WebMenu.Info("SSErespond():  null client!!?");
 
 			} else if (listening) {
 				if (SSEonce)
-					OKSHmenu.Info("SSErespond():  no clients");
+					WebMenu.Info("SSErespond():  no clients");
 				SSEonce = false;
 			}
 		}
@@ -51,7 +51,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		public async static Task SSEtimer()		// hopefully long-running
 		{
-			OKSHmenu.Info("SSEtimer(): launching");
+			WebMenu.Info("SSEtimer(): launching");
 			while (listening && 0 < clients.Count)
 			{
 				if (SSEtimeout)
@@ -59,7 +59,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				SSEtimeout = true;
 				await Task.Delay(15000);
 			}
-			OKSHmenu.Info("SSEtimer(): exiting");
+			WebMenu.Info("SSEtimer(): exiting");
 		}
 	}		// class
 }			// namespace

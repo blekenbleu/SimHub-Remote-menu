@@ -34,13 +34,13 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			if (changed)
 			{
-				OKSHmenu.Settings.midiDevs = new List<MidiDev>() {};
+				WebMenu.Settings.midiDevs = new List<MidiDev>() {};
 				for (int j = 0; j < click.Count; j++)
 				{
 					int key = click.Keys[j];
 					int i = 0x07000000 & key;
 					i >>= 24;
-					OKSHmenu.Settings.midiDevs.Add(new MidiDev()
+					WebMenu.Settings.midiDevs.Add(new MidiDev()
 					{
 						butName = click.Values[j],
 						devName = NAudio.Midi.MidiIn.DeviceInfo(i).ProductName,

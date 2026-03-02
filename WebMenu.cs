@@ -8,8 +8,8 @@ namespace blekenbleu.SimHub_Remote_menu
 {
 	[PluginDescription("JSONio properties displayed in HTTP table")]
 	[PluginAuthor("blekenbleu")]
-	[PluginName("OKSHmenu")]
-	public partial class OKSHmenu : IPlugin, IDataPlugin, IWPFSettingsV2
+	[PluginName("WebMenu")]
+	public partial class WebMenu : IPlugin, IDataPlugin, IWPFSettingsV2
 	{
 		public static DataPluginSettings Settings;
 		public string NewCar = "false";
@@ -18,7 +18,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		static int pCount = 0;					// append per-game settings after pCount
 		static int gCount = 0;					// append global settings after gCount
-		static readonly string My = "OKSHpm.";	// breaks Ini if not preceding
+		static readonly string My = "WebMenu.";	// breaks Ini if not preceding
 												// configuration source
 		static readonly string Myni = "DataCorePlugin.ExternalScript." + My;
 
@@ -43,7 +43,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// </summary>
 		internal static bool Info(string str)
 		{
-			SimHub.Logging.Current.Info(OKSHmenu.My + str);   // bool Info()
+			SimHub.Logging.Current.Info(WebMenu.My + str);   // bool Info()
 			return true;
 		}
 
@@ -131,7 +131,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			else System.IO.File.WriteAllText(path, sjs);
 		}	// End()
 
-		// try CarChange() for Game already running when OKSHmenu is (re)launched
+		// try CarChange() for Game already running when WebMenu is (re)launched
 		// https://ironpdf.com/blog/net-help/csharp-wait-for-seconds/
 		async Task DelayCarChange(PluginManager pm, int milliseconds)
 		{
@@ -143,9 +143,9 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		internal void OOpsMB()
 		{
-			Info(Msg);						// prefixes OKSHmenu.My 
+			Info(Msg);						// prefixes WebMenu.My 
 			Control.Model.StatusText = Msg;
-            System.Windows.Forms.MessageBox.Show(Msg, "OKSHmenu");
+            System.Windows.Forms.MessageBox.Show(Msg, "WebMenu");
 			Msg = "";
 		}
 
@@ -165,7 +165,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				Info("Init():  " + Msg);
 				Msg += "\n" + ViewModel.staticText;
 				Control.Model.StatusText = Msg;
-				System.Windows.Forms.MessageBox.Show(Msg, "OKSHmenu.Init()");
+				System.Windows.Forms.MessageBox.Show(Msg, "WebMenu.Init()");
 				Msg = "";
 			}
 
@@ -181,7 +181,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			for (int c = 0; c < props.Count; c++)
 			{
 				// populate DisplayGrid ItemsSource
-				// OKSHpm.ini contents may not match saved car properties
+				// WebMenu.ini contents may not match saved car properties
 				// default value from .ini
 				int Index = SettingsProps.FindIndex(i => i.Name == props[c]);
 				string ini = (c < vals.Count) ? vals[c] : (0 <= Index) ? SettingsProps[Index].Value : "0";
@@ -196,6 +196,6 @@ namespace blekenbleu.SimHub_Remote_menu
 											: 10);
 			}
 		}
-	}		// class OKSHmenu
+	}		// class WebMenu
 }
 

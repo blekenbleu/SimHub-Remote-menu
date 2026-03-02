@@ -62,7 +62,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			{
 				server = new TcpListener(IPAddress.Any, port);
 				server.Start();
-//				OKSHmenu.Info($"MultiClientTcpServer(): port {port}");
+//				WebMenu.Info($"MultiClientTcpServer(): port {port}");
 
 				// Accept clients continuously
 				for (listening = true; listening;)
@@ -70,13 +70,13 @@ namespace blekenbleu.SimHub_Remote_menu
 					TcpClient client = await server.AcceptTcpClientAsync();
 					string clientId = $"Client_{DateTime.Now:HHmmss}_{client.Client.RemoteEndPoint}";
 
-					OKSHmenu.Info($"MultiClientTcpServer():  New client {clientId}");
+					WebMenu.Info($"MultiClientTcpServer():  New client {clientId}");
 					_ = Task.Run(() => ClientTask(client, clientId));
 				}
 			}
 			catch (Exception ex)
 			{
-				OKSHmenu.Info("MultiClientTcpServer() " + (listening ? $"error: {ex}" : "halted"));
+				WebMenu.Info("MultiClientTcpServer() " + (listening ? $"error: {ex}" : "halted"));
 			}
 			finally
 			{

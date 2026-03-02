@@ -40,7 +40,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					for (string line = sr.ReadLine(); null != line && 0 < line.Length; line = sr.ReadLine());
 				}
 				if (not == which)
-					OKSHmenu.Info("IsHttp:\tHTTP/1.1 404 NOT FOUND\n");
+					WebMenu.Info("IsHttp:\tHTTP/1.1 404 NOT FOUND\n");
 			}
 			return which;
 		}
@@ -65,7 +65,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 					string msg = await sr.ReadLineAsync();
 
-					OKSHmenu.Info($"ClientTask: {clientId} first: {msg}");
+					WebMenu.Info($"ClientTask: {clientId} first: {msg}");
 					if (null == msg )
 						stream.Close();
 					else {									// Test for HTTP
@@ -81,7 +81,7 @@ namespace blekenbleu.SimHub_Remote_menu
 						
 						await stream.WriteAsync(response, 0, response.Length);
 
-						OKSHmenu.Info($"ClientTask:\n---- {clientId} StreamReader connected ---");
+						WebMenu.Info($"ClientTask:\n---- {clientId} StreamReader connected ---");
 						connected = true;
 					}
 
@@ -92,7 +92,7 @@ namespace blekenbleu.SimHub_Remote_menu
 						if (null == request)							// browser disconnect?
 							break;
 
-						OKSHmenu.Info($"ClientTask:  {clientId}:  {request}");
+						WebMenu.Info($"ClientTask:  {clientId}:  {request}");
 						response = IsHttp(request, sr);
 						if(null != response)							// HTTP client request?
 						{
@@ -127,12 +127,12 @@ namespace blekenbleu.SimHub_Remote_menu
 			}
 			catch (Exception ex)
 			{
-				OKSHmenu.Info($"ClientTask:  Error handling client {clientId}: {ex}");
+				WebMenu.Info($"ClientTask:  Error handling client {clientId}: {ex}");
 			}
 			finally
 			{
 				clients.TryRemove(clientId, out _);
-				OKSHmenu.Info($"ClientTask:  {clientId} disconnected;  count = {clients.Count}");
+				WebMenu.Info($"ClientTask:  {clientId} disconnected;  count = {clients.Count}");
 			}
 		}
 
@@ -160,7 +160,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		static string Table ()
 		{
-			string data = head + HTMLtable(OKSHmenu.simValues) + end;
+			string data = head + HTMLtable(WebMenu.simValues) + end;
 			string sw =
 			"HTTP/1.1 200 OK\n"
 			+ "Content-Type:text/html; charset=UTF-8\n"

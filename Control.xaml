@@ -56,7 +56,7 @@
 				Click="ButEvent" Visibility="{Binding SliderVisibility}" Background="Green"/>
 		</StackPanel>
 
-		<!-- Control.xaml.cs Control() binds dg to OKSHmenu.cs List<Values> simValues -->
+		<!-- Control.xaml.cs Control() binds dg to WebMenu.cs List<Values> simValues -->
 		<DataGrid x:Name="dg" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True"
 				SelectionUnit="Cell" SelectionMode="Single" Loaded="DgSelect"
 				CanUserAddRows="False" CanUserSortColumns="False" Width="316">

@@ -19,7 +19,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			(int dropped) =>
 			{
 				string drop = $"MIDI.Channel dropped: {dropped:X}" + (Control.busy ? " busy" : "");
-				OKSHmenu.Info(drop);
+				WebMenu.Info(drop);
 				Model.MidiStatus = "\n" + drop;
 			}
 		);
@@ -34,10 +34,10 @@ namespace blekenbleu.SimHub_Remote_menu
 			}
 			catch (Exception ex)
 			{
-				OKSHmenu.Info($".ReadAsync() {ex}");
+				WebMenu.Info($".ReadAsync() {ex}");
 			}
 
-			OKSHmenu.Info("ReadAsync() ended");
+			WebMenu.Info("ReadAsync() ended");
 		}
 
 		internal static void ReadMidiChannel() { Task.Run(() => ReadAsync()); }
@@ -48,7 +48,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			payload |= inDevice << 24;
 			// Fire-and-forget
 			if (!_channel.Writer.TryWrite(payload))
-				OKSHmenu.Info(lMidiIn[inDevice].id + ".Enqueue(" + payload.ToString() + ") failed");
+				WebMenu.Info(lMidiIn[inDevice].id + ".Enqueue(" + payload.ToString() + ") failed");
 		}
 	}
 }

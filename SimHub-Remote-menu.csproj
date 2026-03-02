@@ -94,7 +94,7 @@
     <Compile Include="JavaScript.cs" />
     <Compile Include="Json.cs" />
     <Compile Include="MIDI.cs" />
-    <Compile Include="OKSHmenu.cs" />
+    <Compile Include="WebMenu.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Slim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -139,7 +139,7 @@
     <PostBuildEvent>
 	cd "%SIMHUB_INSTALL_PATH%"
 	copy /y PluginSdk\SimHub-Remote-menu\NCalcScripts\*.ini "%SIMHUB_INSTALL_PATH%NCalcScripts\"
-	if $(ConfigurationName) == Release (7z u R:\TEMP\SimHub-Remote-menu.zip SimHub-Remote-menu.dll NCalcScripts\OKSHpm.ini)
+	if $(ConfigurationName) == Release (7z u R:\TEMP\SimHub-Remote-menu.zip SimHub-Remote-menu.dll NCalcScripts\WebMenu.ini)
     </PostBuildEvent>
   </PropertyGroup>
 </Project>

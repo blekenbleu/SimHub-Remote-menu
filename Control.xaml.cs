@@ -14,9 +14,9 @@ namespace blekenbleu.SimHub_Remote_menu
 	/// </summary>
 	public partial class Control : UserControl
 	{
-		static OKSHmenu OK;
+		static WebMenu OK;
 		internal static ViewModel Model;			// reference XAML controls
-		internal byte Selection;					// changes only in OKSHmenu.Select() on UI thread
+		internal byte Selection;					// changes only in WebMenu.Select() on UI thread
 		internal static string version = "1.77";
 
 		public Control() {							// called before simValues are initialized
@@ -26,11 +26,11 @@ namespace blekenbleu.SimHub_Remote_menu
 			changed = Earn = false;					// Control.midi.cs
 		}
 
-		public Control(OKSHmenu plugin) : this()
+		public Control(WebMenu plugin) : this()
 		{
-			OK = plugin;							// Control.xaml button events call OKSHmenu methods
-			dg.ItemsSource = OKSHmenu.simValues;	// bind XAML DataGrid
-			if (0 < OKSHmenu.Settings.midiDevs.Count)
+			OK = plugin;							// Control.xaml button events call WebMenu methods
+			dg.ItemsSource = WebMenu.simValues;	// bind XAML DataGrid
+			if (0 < WebMenu.Settings.midiDevs.Count)
 				MIDI.Resume(Model, this);
 		}
 
@@ -94,7 +94,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					OK.SliderButtton();
 					break;
 				default:
-                    OKSHmenu.Msg = "ClickHandle(): unconfigured click '{butName)'";
+                    WebMenu.Msg = "ClickHandle(): unconfigured click '{butName)'";
 					OK.OOpsMB();	// tested 1 Mar 2026
 					break;
 			}

@@ -27,7 +27,7 @@ HTML table updates should have lower processing overhead than graphical overlay.
 	- in `SimHub-Remote-menu.csproj`:  
 	 could not get [ReferencePath](https://learn.microsoft.com/en-us/troubleshoot/developer/visualstudio/project-build/troubleshooting-broken-references)
 	 working;&nbsp; copied JSONio `HintPath`s  
-	- SimHub confused `OKSHmenu` with `JSONio` plugin until renaming `class JSONio`.  
+	- SimHub confused `WebMenu` with `JSONio` plugin until renaming `class JSONio`.  
 	`KSHmenu.ChangeProperties` needs its own `ExternalScript.CarChange` event trigger setting  
 	in **SimHub Controls and events**.
 - [**TcpMultiClient**](https://github.com/blekenbleu/TcpMultiClient) - multiple `keep-alive` TCP connections
@@ -40,7 +40,7 @@ HTML table updates should have lower processing overhead than graphical overlay.
 			but potentially problematic SSE `keep-alive`  
 
 ## plan
-- generate an [HTML `<table>`](HTML.md) from `NCalcScripts/OKSHpm.ini` JSON properties during `Init()`
+- generate an [HTML `<table>`](HTML.md) from `NCalcScripts/WebMenu.ini` JSON properties during `Init()`
 - hand-code [JavaScript](JavaScript.md) for `<table>` updates by Server-Sent Events
 - make [HTML](HTML.cs) + [JavaScript](JavaScript.cs) page available to client browsers
 - [Server-Sent Events](SSE.md) for `<table>` cell property values and e.g. scroll actions - **working**

@@ -2,7 +2,7 @@ using SimHub.Plugins;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
-	public partial class OKSHmenu
+	public partial class WebMenu
 	{
 		/// <summary>
 		/// Helper functions used in Init() AddAction()s and Control.xaml.cs button Clicks

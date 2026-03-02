@@ -19,12 +19,12 @@ namespace blekenbleu.SimHub_Remote_menu
 
 	public class GamesList
 	{
-		public string Plugin;			// NCalcScripts/OKSHpm.ini identifies itself as "OKSHpm.file"
-		public List<string> pList;		// per-car, then per-game property names, from OKSHpm.ini
+		public string Plugin;			// NCalcScripts/WebMenu.ini identifies itself as "WebMenu.file"
+		public List<string> pList;		// per-car, then per-game property names, from WebMenu.ini
 		public List<GameList> gList;
 	}
 
-	public partial class OKSHmenu
+	public partial class WebMenu
 	{
 		GamesList data;
 
@@ -33,7 +33,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			data = new GamesList()
 			{
-				Plugin = "OKSHpm",
+				Plugin = "WebMenu",
 				gList = new List<GameList>() { },	// GameList @ slim.cs line 16
 				// property names
 				pList = new List<string> { }		// per-car, then per-game
@@ -63,26 +63,25 @@ namespace blekenbleu.SimHub_Remote_menu
 			return New;
 		}
 
-		// load Slim .json and reconcile with CurrentCar-specific simValues from NCalcScripts/OKSHpm.ini
+		// load Slim .json and reconcile with CurrentCar-specific simValues from NCalcScripts/WebMenu.ini
 		// return true if path fails or unrecoverable JSON
 		// .ini may have added, deleted or moved properties among per-car, per-game and global
 		// .json may be e.g. obsolete format, out-of-date or bad because code bugs.
-		internal bool Load(string path)
+		internal bool Load(string path)	// from NCalcScripts\WebMenu.ini 'WebMenu.file'
 		{
 			if (!File.Exists(path))
 				return true;
 
-			var foo = File.ReadAllText(path);
 			// this fails if GamesList is not all public
-			data = JsonConvert.DeserializeObject<GamesList>(foo);
+			data = JsonConvert.DeserializeObject<GamesList>(File.ReadAllText(path));
 			if (null == data || null == data.pList || null == data.gList)
 				return true;
 
 			// Now, can only return false, meaning data fully reconciled to simValues
 
-			if (null == data.Plugin || "OKSHpm" != data.Plugin) {
-				OOpa($"Slim.Load({path}) data.Plugin: '{data.Plugin}' != 'OKSHpm'");
-				data.Plugin = "OKSHpm";	// user has at least been warned...
+			if (null == data.Plugin || "WebMenu" != data.Plugin) {
+				OOpa($"Slim.Load({path}) data.Plugin: '{data.Plugin}' != 'WebMenu'");
+				data.Plugin = "WebMenu";	// user has at least been warned...
 			}
 
 			int nullcarID = 0;
