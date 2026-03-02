@@ -35,7 +35,8 @@ namespace blekenbleu.SimHub_Remote_menu
 		readonly PropertyChangedEventArgs SLevent = new PropertyChangedEventArgs("SliderValue");
 		readonly PropertyChangedEventArgs Tevent = new PropertyChangedEventArgs("Text");
 
-		private Visibility _bvis = Visibility.Hidden;	// until carID and game are defined
+
+        private Visibility _bvis = Visibility.Hidden;	// until carID and game are defined
 		public Visibility ButtonVisibility				// must be public for XAML Binding
 		{
 			get { return _bvis; }
@@ -198,5 +199,5 @@ namespace blekenbleu.SimHub_Remote_menu
 				}
 			}
 		}
-	}		// public class StaticControl
+    }		// public class ViewModel
 }

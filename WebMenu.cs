@@ -22,7 +22,7 @@ namespace blekenbleu.SimHub_Remote_menu
 												// configuration source
 		static readonly string Myni = "DataCorePlugin.ExternalScript." + My;
 
-		bool set = false;
+		bool set = false, once = true;
 		string CurrentCar;
 		string Gname = "";
 		int slider = -1;						// simValues index for configured JSONIO.properties
@@ -68,15 +68,21 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// </summary>
 		public string LeftMenuTitle => "WebMenu " + Control.version;
 
-		/// <summary>
-		/// Called one time per game data update, contains all normalized game data,
-		/// raw data are intentionnally "hidden" under a generic object type (plugins SHOULD NOT USE)
-		/// This method is on the critical path, must execute as fast as possible and avoid throwing any error
-		/// </summary>
-		/// <param name="pluginManager"></param>
-		/// <param name="data">Current game data, including current and previous data frames.</param>
-		public void DataUpdate(PluginManager pluginManager, ref GameData data)
-		{}
+        /// <summary>
+        /// Called one time per game data update, contains all normalized game data,
+        /// raw data are intentionnally "hidden" under a generic object type (plugins SHOULD NOT USE)
+        /// This method is on the critical path, must execute as fast as possible and avoid throwing any error
+        /// </summary>
+        /// <param name="pluginManager"></param>
+        /// <param name="data">Current game data, including current and previous data frames.</param>
+        public void DataUpdate(PluginManager pluginManager, ref GameData data)
+		{
+			string cid, gid;
+			
+			if (null != (cid = data?.NewData?.CarId) && cid != CurrentCar
+             && null != (gid = pluginManager?.GameName))
+				CarChange(cid, gid);                // disable popup
+		}
 
 		/// <summary>
 		/// Called at plugin manager stop, close/dispose anything needed here !
@@ -131,16 +137,6 @@ namespace blekenbleu.SimHub_Remote_menu
 			else System.IO.File.WriteAllText(path, sjs);
 		}	// End()
 
-		// try CarChange() for Game already running when WebMenu is (re)launched
-		// https://ironpdf.com/blog/net-help/csharp-wait-for-seconds/
-		async Task DelayCarChange(PluginManager pm, int milliseconds)
-		{
-			await Task.Delay(milliseconds); // wait without blocking main thread
-			CarChange(pm.GetPropertyValue("CarID")?.ToString(),
-					  pm.GetPropertyValue("DataCorePlugin.CurrentGame")?.ToString(),
-					  true);				// disable popup
-		}
-
 		internal void OOpsMB()
 		{
 			Info(Msg);						// prefixes WebMenu.My 
@@ -168,9 +164,6 @@ namespace blekenbleu.SimHub_Remote_menu
 				System.Windows.Forms.MessageBox.Show(Msg, "WebMenu.Init()");
 				Msg = "";
 			}
-
-			// assignment preempts Compiler Warning CS4014
-			Task delayTask = DelayCarChange(pluginManager, 1000);	// #135
 			return View;
 		}
 

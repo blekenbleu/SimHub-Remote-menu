@@ -148,9 +148,9 @@ namespace blekenbleu.SimHub_Remote_menu
  ;		  name='CarChange'
  ;		  trigger=changed(200, [DataCorePlugin.GameData.CarId])
  ;--------------------------------------------------------------- */
-		void CarChange(string cname, string gnew, bool once)
+		void CarChange(string cname, string gnew)
 		{
-			int ml = 0;
+            int ml = 0;
 
 			if (0 == simValues.Count)
 				return;
@@ -159,6 +159,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			{
 				GameList game = null;
 				int i, count = 0, vcount = 0;
+
 
 				Msg = "Current Car: " + cname;
 				if (0 < Gname.Length && SaveSlim())		// do not save first instance
@@ -226,8 +227,10 @@ namespace blekenbleu.SimHub_Remote_menu
 			if (ml < Msg.Length)
 			{
 				if (once)
-					Msg = "";
-				else OOpsMB();
+				{
+					OOpsMB();
+					once = false;
+				}
 				return;
 			}
 			else Msg = "";

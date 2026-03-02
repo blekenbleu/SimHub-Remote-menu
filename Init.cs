@@ -1,11 +1,12 @@
 using SimHub.Plugins;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
 	public partial class WebMenu : IPlugin
 	{
-		bool OOpa(string msg)   // defer MessageBox.Show() until GetWPFSettingsControl()
+        bool OOpa(string msg)   // defer MessageBox.Show() until GetWPFSettingsControl()
 		{
 			Msg += msg + "\n";
 			return true;
@@ -17,7 +18,8 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// <param name="pluginManager"></param>
 		public void Init(PluginManager pluginManager)
 		{
-			CurrentCar = null;			// otherwise whatever was set before game change
+			CurrentCar = null;          // otherwise whatever was set before game change
+			once = true;
 			// restore Properties from settings
 			Settings = this.ReadCommonSettings<DataPluginSettings>(
 												"GeneralSettings", () => new DataPluginSettings());
@@ -28,10 +30,10 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (null != p.Name && null != p.Value)
 					SettingsProps.Add(new Property() { Name = p.Name, Value = p.Value });
 
-			Steps = new List<int>() {};		// for Populate()
+			Steps = new List<int>() {};     // for Populate()
 
-			// property and setting names, default values and steps from WebMenu.ini
-			string pts, ds = pluginManager.GetPropertyValue(pts = Myni + "properties")?.ToString();
+            // property and setting names, default values and steps from WebMenu.ini
+            string pts, ds = pluginManager.GetPropertyValue(pts = Myni + "properties")?.ToString();
 			string vts, vs = pluginManager.GetPropertyValue(vts = Myni + "values")?.ToString();
 			string sts, ss = pluginManager.GetPropertyValue(sts = Myni + "steps")?.ToString();
 			if ((!(null == ds && (0 == Settings.pcount || OOpa($"per-car properties not found"))))
@@ -143,10 +145,10 @@ namespace blekenbleu.SimHub_Remote_menu
 			// still-configured from most recent game instance
 			// Load existing JSON, using slim format
 			// JSON values for still-configured properties are supposed more current than .ini
-			if (Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()))
+			if (Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()) || true)
 			{
-				if (0 < Msg.Length)
-					OOpa($"Init() Load({path}): " + Msg);
+				if (0 <= Msg.Length)
+					OOpa($"Load({path}): " + Msg);
 				Data();										// Slim.cs
 			}
 
@@ -160,17 +162,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			this.AttachDelegate("Car", () => CurrentCar);
 			this.AttachDelegate("Game", () => Gname);
 			this.AttachDelegate("Msg", () => Msg);
-
-			// Declare an event and corresponding action
 			Actions();
-			// triggered by ExternalScript.CarChange event
-			this.AddAction("ChangeProperties",			(a, b) => CarChange(
-					pluginManager.GetPropertyValue("CarID")?.ToString(),
-					pluginManager.GetPropertyValue("DataCorePlugin.CurrentGame")?.ToString(),
-					false
-				)
-			);
-
 			Info($"Init():  simValues.Count = {simValues.Count}");
 		}	// Init()
 	}		// class WebMenu
