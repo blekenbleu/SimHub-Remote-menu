@@ -15,23 +15,23 @@ namespace blekenbleu.SimHub_Remote_menu
 		public string NewCar = "false";
 
 		internal static string Msg = "";
-		internal static int pCount;				// append per-game settings after pCount
-		internal static int gCount;				// append global settings after gCount
-		internal int slider = -1;				// simValues index for configured JSONIO.properties
-		internal bool set = false;
 
-		private string CurrentCar;
-		private string Gname = "";
-		private int gndx = -1, cndx = -1;						// current car slim.data.gList indices
-		private static readonly string My = "OKSHpm.";			// breaks Ini if not preceding
-																// configuration source
-		private static readonly string Myni = "DataCorePlugin.ExternalScript." + My;
-		private string path;									// JSON file location
-		private readonly double[] SliderFactor = new double[] { 0, 0 };
-		private Slim slim;										// new JSON format
-		private List<Property> SettingsProps;					// non-null Settings entries
-		private List<int> Steps;								// 100 times actual values
-		private bool write = false;								// slim should not change
+		static int pCount = 0;					// append per-game settings after pCount
+		static int gCount = 0;					// append global settings after gCount
+		static readonly string My = "OKSHpm.";	// breaks Ini if not preceding
+												// configuration source
+		static readonly string Myni = "DataCorePlugin.ExternalScript." + My;
+
+		bool set = false;
+		string CurrentCar;
+		string Gname = "";
+		int slider = -1;						// simValues index for configured JSONIO.properties
+		int gndx = -1, cndx = -1;						// current car data.gList indices
+		string path;									// JSON file location
+		readonly double[] SliderFactor = new double[] { 0, 0 };
+		List<Property> SettingsProps;					// non-null Settings entries
+		List<int> Steps;								// 100 times actual values
+		bool write = false;								// slim should not change
 
 		/// <summary>
 		/// DisplayGrid contents
@@ -45,13 +45,6 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			SimHub.Logging.Current.Info(OKSHmenu.My + str);   // bool Info()
 			return true;
-		}
-
-		void OOpsMB()
-		{
-			Info("OOpsMB(): " + Msg);
-			View?.Dispatcher.Invoke(() => Control.OOpsMB());
-			Msg = "";
 		}
 
 		void OOps(string str)
@@ -117,20 +110,21 @@ namespace blekenbleu.SimHub_Remote_menu
 						});
 
 				// capture per-game Default changes
-				slim.data.gList[gndx].cList[0].Vlist = DefaultCopy();
+				data.gList[gndx].cList[0].Vlist = DefaultCopy();
 			}
 
 			set = set || MIDI.Stop();
 			if (set)	// .ini mismatches Settings or game run
 				this.SaveCommonSettings("GeneralSettings", Settings);
 
-			HttpServer.Stop();
+//			HttpServer.Stop();
 			simValues = new List<Values>();
 
 			if (!write)				// End()
 				return;
 
-			string sjs = Newtonsoft.Json.JsonConvert.SerializeObject(slim.data,
+            // this fails if data and GamesList are not all public
+            string sjs = Newtonsoft.Json.JsonConvert.SerializeObject(data,
 						 Newtonsoft.Json.Formatting.Indented);
 			if (0 == sjs.Length || "{}" == sjs)
 				OOps("End():  Json Serializer failure");
@@ -139,13 +133,20 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		// try CarChange() for Game already running when OKSHmenu is (re)launched
 		// https://ironpdf.com/blog/net-help/csharp-wait-for-seconds/
-		async Task AsyncRunningGame(PluginManager pm, int milliseconds)
+		async Task DelayCarChange(PluginManager pm, int milliseconds)
 		{
 			await Task.Delay(milliseconds); // wait without blocking main thread
-//			Info("AsyncRunningGame(CarChange())");
 			CarChange(pm.GetPropertyValue("CarID")?.ToString(),
 					  pm.GetPropertyValue("DataCorePlugin.CurrentGame")?.ToString(),
 					  true);				// disable popup
+		}
+
+		internal void OOpsMB()
+		{
+			Info(Msg);						// prefixes OKSHmenu.My 
+			Control.Model.StatusText = Msg;
+            System.Windows.Forms.MessageBox.Show(Msg, "OKSHmenu");
+			Msg = "";
 		}
 
 		/// <summary>
@@ -153,28 +154,29 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// </summary>
 		/// <param name="pluginManager"></param>
 		/// <returns>UserControl instance</returns>
-		private Control View;	// instance of Control.xaml.cs Control()
+		Control View;										// instance of Control.xaml.cs Control()
 		public System.Windows.Controls.Control GetWPFSettingsControl(PluginManager pluginManager)
 		{
-			HttpServer.Init(View = new Control(this));		// invoked *after* Init()
-			SliderButtton();
-			Task.Run(() => HttpServer.OpenAsync());
-			if (0 < Msg.Length)
+			HttpServer.Start(View = new Control(this));		// invoked *after* Init()
+			SliderButtton();								// depends on View instance
+
+			if (0 < Msg.Length) 							// pop-up for Init() issues
 			{
-				Info("OOpsMB() " + Msg);
-				Msg = "Init() " + Msg + ViewModel.staticText;
-				View.Dispatcher.Invoke(() => Control.OOpsMB());
+				Info("Init():  " + Msg);
+				Msg += "\n" + ViewModel.staticText;
+				Control.Model.StatusText = Msg;
+				System.Windows.Forms.MessageBox.Show(Msg, "OKSHmenu.Init()");
 				Msg = "";
 			}
+
 			// assignment preempts Compiler Warning CS4014
-//			Info("GetWPFSettingsControl():  delayTask");
-			Task delayTask = AsyncRunningGame(pluginManager, 1000);
+			Task delayTask = DelayCarChange(pluginManager, 1000);	// #135
 			return View;
 		}
 
 		// add properties and settings to simValues; initialize Steps
 		// if a property move among
-		private void Populate(List<string>props, List<string> vals, List<string> stps)
+		void Populate(List<string>props, List<string> vals, List<string> stps)
 		{
 			for (int c = 0; c < props.Count; c++)
 			{
@@ -194,172 +196,6 @@ namespace blekenbleu.SimHub_Remote_menu
 											: 10);
 			}
 		}
-
-		internal bool OOpa(string msg)   // defer MessageBox.Show() until GetWPFSettingsControl()
-		{
-			Msg += msg + "\n";
-			return true;
-		}
-
-		/// <summary>
-		/// Called once after plugins startup
-		/// Plugins are rebuilt at game change
-		/// </summary>
-		/// <param name="pluginManager"></param>
-		public void Init(PluginManager pluginManager)
-		{
-			CurrentCar = null;			// otherwise whatever was set before game change
-			// restore Properties from settings
-			Settings = this.ReadCommonSettings<DataPluginSettings>(
-												"GeneralSettings", () => new DataPluginSettings());
-
-			// restore previously saved car properties
-			SettingsProps = new List<Property> {};			// deep copy
-			foreach(Property p in Settings.properties)
-				if (null != p.Name && null != p.Value)
-					SettingsProps.Add(new Property() { Name = p.Name, Value = p.Value });
-
-			Steps = new List<int>() {};		// for Populate()
-
-			// property and setting names, default values and steps from OKSHpm.ini
-			string pts, ds = pluginManager.GetPropertyValue(pts = Myni + "properties")?.ToString();
-			string vts, vs = pluginManager.GetPropertyValue(vts = Myni + "values")?.ToString();
-			string sts, ss = pluginManager.GetPropertyValue(sts = Myni + "steps")?.ToString();
-			if ((!(null == ds && (0 == Settings.pcount || OOpa($"per-car properties not found"))))
-			 && (!(null == vs && OOpa($"'{vts}' not found")))
-			 && (!(null == ss && OOpa($"'{sts}' not found")))
-			   )
-			{
-				// OKSHpm.ini defines per-car Properties
-				List<string> CarProps = new List<string>(ds.Split(','));
-				pCount = CarProps.Count;						// these are per-car
-				List<string> values = new List<string>(vs.Split(','));
-				List<string> steps = new List<string>(ss.Split(','));
-				if (pCount != values.Count || pCount != steps.Count)
-					OOpa($"{pCount} per-car properties;  "
-						+$"{values.Count} values;  {steps.Count} steps");
-				Populate(CarProps, values, steps);
-			}
-			if (Settings.pcount != simValues.Count)
-			{
-				set = true;
-				Settings.pcount = simValues.Count;
-			}
-
-			// OKSHpm.ini also optionally defines per-game Properties
-			string ptts = Myni + "gameprops";
-			string dss = pluginManager.GetPropertyValue(ptts)?.ToString();
-			string vtts = Myni + "gamevals";
-			string vss = pluginManager.GetPropertyValue(vtts)?.ToString();
-			string stts = Myni + "gamesteps";
-			string sss = pluginManager.GetPropertyValue(stts)?.ToString();
-			if ((!(null == dss && (0 == Settings.gcount || OOpa($"per-game properties not found"))))
-			 && (!(null == vss && OOpa($"'{vtts}' not found")))
-			 && (!(null == sss && OOpa($"'{stts}' not found")))
-				)
-			{
-				List<string> Sprops = new List<string>(dss.Split(','));
-				List<string> values = new List<string>(vss.Split(','));
-				List<string> steps = new List<string>(sss.Split(','));
-				if (Sprops.Count != values.Count || Sprops.Count != steps.Count)
-					OOpa($"{Sprops.Count} gameprops;  {values.Count} gamevals;"
-									+ $"  {steps.Count} gamesteps");
-				gCount = (Sprops.Count < values.Count) ? Sprops.Count : values.Count;
-				if (gCount > steps.Count)
-					gCount = steps.Count + pCount;
-				else gCount += pCount;
-				Populate(Sprops, values, steps);
-			}
-			if (Settings.gcount != simValues.Count - Settings.pcount) {
-				set = true;
-				Settings.gcount = simValues.Count - Settings.pcount;
-			}			
-
-			// OKSHpm.ini also optionally defines global settings
-			string pgts = Myni + "settings";
-			string dgs = pluginManager.GetPropertyValue(pgts)?.ToString();
-			string vgts = Myni + "setvals";
-			string vgs = pluginManager.GetPropertyValue(vgts)?.ToString();
-			string sgts = Myni + "setsteps";
-			string sgs = pluginManager.GetPropertyValue(sgts)?.ToString();
-			if ((!(null == dgs && (0 == Settings.gDefaults.Count || OOpa($"global properties not found"))))
-			 && (!(null == vgs && OOpa($"'{vgts}' not found")))
-			 && (!(null == sgs && OOpa($"'{sgts}' not found")))
-				)
-			{
-				List<string> Gprops = new List<string>(dgs.Split(','));
-				List<string> values = new List<string>(vgs.Split(','));
-				List<string> steps = new List<string>(sgs.Split(','));
-				if (Gprops.Count != values.Count || Gprops.Count != steps.Count)
-					OOpa($"{Gprops.Count} settings;  {values.Count} setvals;"
-									+ $"  {steps.Count} setsteps");
-				Populate(Gprops, values, steps);
-			}
-
-			if (Settings.gDefaults.Count != simValues.Count - (Settings.gcount + Settings.pcount))
-			{
-				Settings.gDefaults = new List<Property>() {};
-				set = true;
-			}
-
-			if (0 == simValues.Count)
-			{
-				OOpa("Missing or invalid " + Myni
-					 + "properties from NCalcScripts/OKSHpm.ini");
-				return;
-			}
-
-			// Recover default global values from Settings
-			// for properties which remain global since previous game instance.
-			{
-				int gd, scount = SettingsProps.Count;
-
-				for (gd = 0; gd < Settings.gDefaults.Count; gd++)
-				{
-					int Index = simValues.FindIndex(s => s.Name == Settings.gDefaults[gd].Name);
-					if (Index >= gCount)	// still global?
-						simValues[Index].Default = Settings.gDefaults[gd].Value;
-				}
-
-				string sl = pluginManager.GetPropertyValue(Myni + "slider")?.ToString();
-
-				if (null != sl)
-					slider = simValues.FindIndex(i => i.Name == sl);
-			}
-
-			// at this point, simValues has all properties from .ini,
-			// with original .ini default and previous property values
-			// still-configured from most recent game instance
-			// Load existing JSON, using slim format
-			// JSON values for still-configured properties are supposed more current than .ini
-			slim = new Slim(this) {};
-			if (slim.Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()))
-			{
-				if (0 < Msg.Length)
-					OOpa($"Init() slim.Load({path}): " + Msg);
-				slim.Data();
-			}
-
-			// Declare available properties
-			// SimHub properties by AttachDelegate get evaluated "on demand"
-			foreach (Values p in simValues)
-				this.AttachDelegate(p.Name, () => p.Current);
-			this.AttachDelegate("Selected", () => Control.Model.SelectedProperty);
-			this.AttachDelegate("New Car", () => NewCar);
-			this.AttachDelegate("Car", () => CurrentCar);
-			this.AttachDelegate("Game", () => Gname);
-			this.AttachDelegate("Msg", () => Msg);
-
-			// Declare an event and corresponding action
-			Actions();
-			this.AddAction("ChangeProperties",			(a, b) => CarChange(	// SimHub triggers by ExternalScript.CarChange event
-					pluginManager.GetPropertyValue("CarID")?.ToString(),
-					pluginManager.GetPropertyValue("DataCorePlugin.CurrentGame")?.ToString(),
-					false
-				)
-			);
-
-			Info($"Init():  simValues.Count = {simValues.Count}");
-		}	// Init()
 	}		// class OKSHmenu
 }
+

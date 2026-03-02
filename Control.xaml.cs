@@ -14,10 +14,10 @@ namespace blekenbleu.SimHub_Remote_menu
 	/// </summary>
 	public partial class Control : UserControl
 	{
-		public static OKSHmenu OK;
-		public static ViewModel Model;				// reference XAML controls
+		static OKSHmenu OK;
+		internal static ViewModel Model;			// reference XAML controls
 		internal byte Selection;					// changes only in OKSHmenu.Select() on UI thread
-		internal static string version = "1.76";
+		internal static string version = "1.77";
 
 		public Control() {							// called before simValues are initialized
 			Model = new ViewModel(this);
@@ -38,12 +38,6 @@ namespace blekenbleu.SimHub_Remote_menu
 									System.Windows.Navigation.RequestNavigateEventArgs e)
 		{
 			System.Diagnostics.Process.Start(e.Uri.AbsoluteUri);
-		}
-
-		internal static void OOpsMB()
-		{
-			Model.StatusText = OKSHmenu.Msg;
-			System.Windows.Forms.MessageBox.Show(OKSHmenu.Msg, "OKSHmenu");
 		}
 
 		// highlights selected property cell
@@ -100,8 +94,8 @@ namespace blekenbleu.SimHub_Remote_menu
 					OK.SliderButtton();
 					break;
 				default:
-					Model.StatusText = "ClickHandle(): unconfigured click '{butName)'";
-					OOpsMB();
+                    OKSHmenu.Msg = "ClickHandle(): unconfigured click '{butName)'";
+					OK.OOpsMB();	// tested 1 Mar 2026
 					break;
 			}
 		}

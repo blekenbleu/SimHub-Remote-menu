@@ -5,7 +5,7 @@ using System.IO;
 namespace blekenbleu.SimHub_Remote_menu
 {
 // New slim JSON structure ------------------------------------------
-// These must all be declared public for JsonConvert.SerializeObject()
+// !!! These must all be declared public for JsonConvert.SerializeObject() !!!
 	public class CarL
 	{
 		public string Name { get; set; }		// CarID (game name for Carl[0])
@@ -24,15 +24,9 @@ namespace blekenbleu.SimHub_Remote_menu
 		public List<GameList> gList;
 	}
 
-	public class Slim
+	public partial class OKSHmenu
 	{
-		public GamesList data;
-		readonly OKSHmenu js;
-
-		public Slim(OKSHmenu plugin)
-		{
-			this.js = plugin;
-		}
+		GamesList data;
 
 		// called in End()
 		public void Data()
@@ -44,8 +38,8 @@ namespace blekenbleu.SimHub_Remote_menu
 				// property names
 				pList = new List<string> { }		// per-car, then per-game
 			};
-			for (int i = 0; i < OKSHmenu.gCount; i++)
-				data.pList.Add(OKSHmenu.simValues[i].Name);
+			for (int i = 0; i < gCount; i++)
+				data.pList.Add(simValues[i].Name);
 		}
 
 		// Reconcile .json values with simValues based on .ini and Settings
@@ -53,17 +47,17 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			List<string> New = new List<string> {};
 			// car[0] is per-game car default and per-game property values
-			int count = (0 == car) ? OKSHmenu.gCount : OKSHmenu.pCount;
+			int count = (0 == car) ? gCount : pCount;
 
-			if (count > OKSHmenu.simValues.Count)
-				count = OKSHmenu.simValues.Count;		// it happens 19 Feb 2025
+			if (count > simValues.Count)
+				count = simValues.Count;		// it happens 19 Feb 2025
 
 			for (int i = 0; i < count; i++)
 			{
-				int Index =  data.pList.FindIndex(j => j == OKSHmenu.simValues[i].Name);
+				int Index =  data.pList.FindIndex(j => j == simValues[i].Name);
 
 				if (-1 == Index || Index >= vList.Count)
-					New.Add(OKSHmenu.simValues[i].Default);
+					New.Add(simValues[i].Default);
 				else New.Add(vList[Index]);	// reuse as many as possible
 			}
 			return New;
@@ -78,60 +72,47 @@ namespace blekenbleu.SimHub_Remote_menu
 			if (!File.Exists(path))
 				return true;
 
-			data = JsonConvert.DeserializeObject<GamesList>(File.ReadAllText(path));
-			if (null == data)
-			{
-				OKSHmenu.Msg = "null data";
+			var foo = File.ReadAllText(path);
+			// this fails if GamesList is not all public
+			data = JsonConvert.DeserializeObject<GamesList>(foo);
+			if (null == data || null == data.pList || null == data.gList)
 				return true;
-			}
-
-			if (null == data.pList)
-			{
-				OKSHmenu.Msg = "null data.pList";
-				return true;
-			}
-
-			if (null == data.gList)
-			{
-				OKSHmenu.Msg = "null data.gList";
-				return true;
-			}
 
 			// Now, can only return false, meaning data fully reconciled to simValues
 
 			if (null == data.Plugin || "OKSHpm" != data.Plugin) {
-				js.OOpa($"Slim.Load({path}) data.Plugin: {data.Plugin} != OKSHpm");
+				OOpa($"Slim.Load({path}) data.Plugin: '{data.Plugin}' != 'OKSHpm'");
 				data.Plugin = "OKSHpm";	// user has at least been warned...
 			}
 
 			int nullcarID = 0;
-			int pCount = OKSHmenu.pCount;
-			int gCount = OKSHmenu.gCount;
+			int pcount = pCount;
+			int gcount = gCount;
 			int i, g, c;
 
-			if (gCount != data.pList.Count)
+			if (gcount != data.pList.Count)
 				i = -1;
 			else for (i = 0; i < data.pList.Count; i++)
-				if (data.pList[i] != OKSHmenu.simValues[i].Name)
+				if (data.pList[i] != simValues[i].Name)
 					break;
 
-			if (i == gCount)
+			if (i == gcount)
 				for (g = 0; g < data.gList.Count; g++)
 					if (null != data.gList[g].cList)
 					{
-						if (data.gList[g].cList.Count < 2 || data.gList[g].cList[0].Vlist.Count != gCount)
+						if (data.gList[g].cList.Count < 2 || data.gList[g].cList[0].Vlist.Count != gcount)
 						{ i--; break; }
 						else for (c = 0; c < data.gList[g].cList.Count; c++)
-								if (data.gList[g].cList[c].Vlist.Count != ((0 == c) ? gCount : pCount))
+								if (data.gList[g].cList[c].Vlist.Count != ((0 == c) ? gcount : pcount))
 								{ i--; g = data.gList.Count; break; }
 					}
 
-			if (i != gCount)
+			if (i != gcount)
 			// repopulate car properties according to simValues
 			{
-				if (!js.set)	// already warned
-					js.OOpa($"Slim.Load({path}):  pList mismatch");
-				if (i != pCount)
+				if (!set)	// already warned
+					OOpa($"Slim.Load({path}):  pList mismatch");
+				if (i != pcount)
 					for (i = 0; i < data.gList.Count; i++)					// all games
 					{
 						if (null == data.gList[i].cList)
@@ -145,14 +126,14 @@ namespace blekenbleu.SimHub_Remote_menu
 							else data.gList[i].cList[c].Vlist = Reconcile(data.gList[i].cList[c].Vlist, c);
 					}
 				data.pList = new List<string> {};
-				for (i = 0; i < gCount; i++)
-					data.pList.Add(OKSHmenu.simValues[i].Name);
+				for (i = 0; i < gcount; i++)
+					data.pList.Add(simValues[i].Name);
 			}
 			if (0 < nullcarID)
-				js.OOpa($"Slim.Load({path}): {nullcarID} null carIDs");
+				OOpa($"Slim.Load({path}): {nullcarID} null carIDs");
 
 			if (data.gList.Count < 1 || data.gList[0].cList.Count < 2)
-				js.OOpa($"Slim.Load({path}): empty data.gList");
+				OOpa($"Slim.Load({path}): empty data.gList");
 
 			return false;
 		}	// Load()

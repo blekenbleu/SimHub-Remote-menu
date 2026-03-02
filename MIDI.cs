@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using NAudio.Midi;
 
 namespace blekenbleu.SimHub_Remote_menu
@@ -85,7 +86,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					}
 				}
 			}
-			OKSHmenu.Info($"Resume():  {Control.click.Count} configured clicks");
+//			OKSHmenu.Info($"Resume():  {Control.click.Count} configured clicks");
 			Start(m, c);
 		}
 
@@ -127,18 +128,18 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		static void InputMidiDevices()		// called by Start()
 		{
-			string s = $"InputMidiDevices():  NAudio MidiIn device count {MidiIn.NumberOfDevices}";
+			StringBuilder s = new StringBuilder($"\nNAudio MidiIn device count {MidiIn.NumberOfDevices}");
 
 			for (int i = 0; i < MidiIn.NumberOfDevices; i++)
 			{
 				string input = MidiIn.DeviceInfo(i).ProductName;
-				s += ("\n\t" + input);
+
+				s.Append("\n\t").Append(input);
 				if (input.StartsWith("loopMIDI") || input.StartsWith("AudioBox"))
-					s += "\tignored";
-				else s += InputMidiSetup(i, input) ? "\thandled" : "\tfailed";
+					s.Append(" ignored");
+				else s.Append(InputMidiSetup(i, input) ? " handled" : " failed");
 			}
-			OKSHmenu.Info(s);
-			Model.MidiStatus = "\n" + s;
+			Model.MidiStatus = s.ToString();
 		}
 
 		// e.MidiEvent = FromRawMessage(e.RawMessage);

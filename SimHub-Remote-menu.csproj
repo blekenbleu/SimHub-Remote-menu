@@ -86,6 +86,7 @@
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="Control.midi.cs" />
+    <Compile Include="Init.cs" />
     <Compile Include="SemaphoreSlim.cs" />
     <Compile Include="SSEvents.cs" />
     <Compile Include="HTML.cs" />

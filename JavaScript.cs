@@ -17,11 +17,6 @@ namespace blekenbleu.SimHub_Remote_menu
  ;		JavaScript Debugging:  https://www.w3schools.com/js/js_debugging.asp
 */
 
-		internal static void Init(Control v)
-		{
-			View = v;
-		}
-
 		// https://www.milanjovanovic.tech/blog/server-sent-events-in-aspnetcore-and-dotnet-10#consuming-server-sent-events-in-javascript
 		static string j = "\n<script>"
 +"\nconst source = new EventSource('SSE');"

@@ -15,13 +15,13 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (!SaveSlim())
 					return changed;
 
-			// this should be unnecessary if slim.Reconcile() works..
-			if (gCount != slim.data.gList[gndx].cList[0].Vlist.Count
-			 || pCount != slim.data.gList[gndx].cList[cndx].Vlist.Count)
+			// this should be unnecessary if Reconcile() works..
+			if (gCount != data.gList[gndx].cList[0].Vlist.Count
+			 || pCount != data.gList[gndx].cList[cndx].Vlist.Count)
 				changed = true;
 			else for (int p = 0; p < gCount; p++)
-				if (simValues[p].Default != slim.data.gList[gndx].cList[0].Vlist[p]			// per-game default change?
-		 		 || p < pCount && simValues[p].Current != slim.data.gList[gndx].cList[cndx].Vlist[p]) // per-car change?
+				if (simValues[p].Default != data.gList[gndx].cList[0].Vlist[p]			// per-game default change?
+		 		 || p < pCount && simValues[p].Current != data.gList[gndx].cList[cndx].Vlist[p]) // per-car change?
 				{
 					changed = true;
 					break;
@@ -86,11 +86,11 @@ namespace blekenbleu.SimHub_Remote_menu
 			if (1 > gnew.Length)
 				return gndx;										// should be unlikely
 
-			for (int g = 0; g < slim.data.gList.Count; g++)
-				if (0 == slim.data.gList[g].cList.Count
-				 || null == slim.data.gList[g].cList[0].Name)
-					slim.data.gList.RemoveAt(g--);					// Reconcile() failure
-				else if (gnew == slim.data.gList[g].cList[0].Name)
+			for (int g = 0; g < data.gList.Count; g++)
+				if (0 == data.gList[g].cList.Count
+				 || null == data.gList[g].cList[0].Name)
+					data.gList.RemoveAt(g--);					// Reconcile() failure
+				else if (gnew == data.gList[g].cList[0].Name)
 					gndx = g;
 			return gndx;
 		}
@@ -103,8 +103,8 @@ namespace blekenbleu.SimHub_Remote_menu
 			if (0 > GameIndex(Gname))	// first car for this game?
 			{
 				write = true;			// first car
-				gndx = slim.data.gList.Count;
-				slim.data.gList.Add(new GameList
+				gndx = data.gList.Count;
+				data.gList.Add(new GameList
 					{ cList = new List<CarL>
 						{ new CarL { Name = Gname,
 									 Vlist = DefaultCopy()
@@ -114,27 +114,27 @@ namespace blekenbleu.SimHub_Remote_menu
 				);
 			}
 
-			if (0 > (cndx = slim.data.gList[gndx].cList.FindIndex(c => c.Name == CurrentCar)))
+			if (0 > (cndx = data.gList[gndx].cList.FindIndex(c => c.Name == CurrentCar)))
 			{	// add car to game
 				write = true;			// add car
-				cndx = slim.data.gList[gndx].cList.Count;
-				slim.data.gList[gndx].cList.Add(new CarL
+				cndx = data.gList[gndx].cList.Count;
+				data.gList[gndx].cList.Add(new CarL
 					{ Name = CurrentCar,
 					  Vlist = CurrentCopy()
 					}
 				);
 			} else {								// property value changes?
 				for (int i = 0; i < gCount; i++)
-					if (slim.data.gList[gndx].cList[0].Vlist[i] != simValues[i].Default)
+					if (data.gList[gndx].cList[0].Vlist[i] != simValues[i].Default)
 					{
-						slim.data.gList[gndx].cList[0].Vlist = DefaultCopy();
+						data.gList[gndx].cList[0].Vlist = DefaultCopy();
 						write = true;	// per-game property change
 						break;
 					}
 				for (int i = 0; i < pCount; i++)
-					if (slim.data.gList[gndx].cList[cndx].Vlist[i] != simValues[i].Current)
+					if (data.gList[gndx].cList[cndx].Vlist[i] != simValues[i].Current)
 					{
-						slim.data.gList[gndx].cList[cndx].Vlist = CurrentCopy();
+						data.gList[gndx].cList[cndx].Vlist = CurrentCopy();
 						write = true;	// per-car property change
 						break;
 					}
@@ -171,7 +171,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				// indices for new car
 				if (0 <= GameIndex(gnew))						// sets gndx
 				{
-					game = slim.data.gList[gndx];
+					game = data.gList[gndx];
 					cndx = game.cList.FindIndex(c => c.Name == cname);
 					vcount = game.cList[0].Vlist.Count;
 					count = gCount > vcount ? vcount : gCount;

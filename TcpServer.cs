@@ -62,7 +62,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			{
 				server = new TcpListener(IPAddress.Any, port);
 				server.Start();
-				OKSHmenu.Info($"MultiClientTcpServer(): port {port}");
+//				OKSHmenu.Info($"MultiClientTcpServer(): port {port}");
 
 				// Accept clients continuously
 				for (listening = true; listening;)
