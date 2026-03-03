@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
+using NAudio.Midi;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
@@ -34,7 +36,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			if (changed)
 			{
-				WebMenu.Settings.midiDevs = new List<MidiDev>() {};
+/*				WebMenu.Settings.midiDevs = new List<MidiDev>() {};
 				for (int j = 0; j < click.Count; j++)
 				{
 					int key = click.Keys[j];
@@ -47,9 +49,18 @@ namespace blekenbleu.SimHub_Remote_menu
 						devMessage = key
 					});
 				}
+ */
+				WebMenu.Settings.midiDevs = click.Select(md => new MidiDev
+				{
+		    	    butName = md.Value,
+			        devMessage = md.Key,
+        			devName = MidiIn.DeviceInfo((0x07000000 & md.Key) >> 24).ProductName
+			    }).ToList();
 			}
 			return changed;
 		}
+		
+
 		void ListClick(string bName)	// checks for slider or buttons
 		{
 			if (0 == recent)
@@ -61,7 +72,8 @@ namespace blekenbleu.SimHub_Remote_menu
 			}
 			else if (click.ContainsValue(bName) && again != bName)
 			{
-				Model.MidiStatus = $"\n'{bName}' already in click list; click again to also add {recent:X8}\n -or- Forget to remove current {bName}";
+				Model.MidiStatus = $"\n'{bName}' already in click list; click again to also add a"
+								 + $"{recent:X8}\n -or- Forget to remove current {bName}";
 				again = bName;
 			}
 			else {
