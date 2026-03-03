@@ -139,7 +139,8 @@
     <PostBuildEvent>
 	cd "%SIMHUB_INSTALL_PATH%"
 	copy /y PluginSdk\SimHub-Remote-menu\NCalcScripts\*.ini "%SIMHUB_INSTALL_PATH%NCalcScripts\"
-	if $(ConfigurationName) == Release (7z u R:\TEMP\SimHub-Remote-menu.zip SimHub-Remote-menu.dll NCalcScripts\WebMenu.ini)
+	copy /y PluginSdk\SimHub-Remote-menu\AnyGameLoadedSlipGripWebMenu1.2.siprofile "%SIMHUB_INSTALL_PATH%PluginsData\"
+	if $(ConfigurationName) == Release (7z u R:\TEMP\SimHub-Remote-menu.zip SimHub-Remote-menu.dll NCalcScripts\WebMenu.ini PluginsData\AnyGameLoadedSlipGripWebMenu1.2.siprofile)
     </PostBuildEvent>
   </PropertyGroup>
 </Project>
