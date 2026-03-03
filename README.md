@@ -50,6 +50,11 @@ HTML table updates should have lower processing overhead than graphical overlay.
 - [multiple MIDI input device support](Channel.md) *with learning* for `<table>` changes
 - *to do*:&nbsp; maintain client web sessions across game changes
 
+## bug
+- `Expression error:The type initializer for 'Jint.Native.Global.GlobalObject' threw an exception.`
+	- any Javascript ShakeIt Custom Effect formula returns this until SimHub is reinstalled.
+	- loading a new build of this plugin provokes it again...?
+	- `TcpServer.cs static JavaScriptSerializer js;` perhaps provokes this?
 ### new-to-me tricks  
 - handle all button events in one method by [`(e.OriginalSource as FrameworkElement).Name`](https://stackoverflow.com/a/26938950)
 - [NAudio `MidiIn.NumberOfDevices`, `MidiIn(deviceNumber)`](https://github.com/naudio/NAudio/blob/master/NAudioDemo/MidiInDemo/MidiInPanel.cs#L24)

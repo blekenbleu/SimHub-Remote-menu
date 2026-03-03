@@ -93,7 +93,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			string vgs = pluginManager.GetPropertyValue(vgts)?.ToString();
 			string sgts = Myni + "setsteps";
 			string sgs = pluginManager.GetPropertyValue(sgts)?.ToString();
-			bool noglob = (0 == Settings.gDefaults.Count) && OOpa($"global properties not found");
+			bool noglob = (0 == Settings.gDefaults.Count); // && OOpa($"global properties not found");
 
 			if	((!(null == dgs && noglob))
 			 &&  (!(null == vgs && OOpa($"'{vgts}' not found")))
@@ -106,6 +106,13 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (Gprops.Count != values.Count || Gprops.Count != steps.Count)
 					OOpa($"{Gprops.Count} settings;  {values.Count} setvals;"
 									+ $"  {steps.Count} setsteps");
+				for (int i = 0; i < Gprops.Count; i++)
+					if (0 == Gprops[i].Length)			// settings may be empty
+					{
+						Gprops.RemoveAt(i);
+						values.RemoveAt(i);
+						steps.RemoveAt(i--);
+					}
 				Populate(Gprops, values, steps);
 			}
 
@@ -145,9 +152,9 @@ namespace blekenbleu.SimHub_Remote_menu
 			// still-configured from most recent game instance
 			// Load existing JSON, using slim format
 			// JSON values for still-configured properties are supposed more current than .ini
-			if (Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()) || true)
+			if (Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()))
 			{
-				if (0 <= Msg.Length)
+				if (0 < Msg.Length)
 					OOpa($"Load({path}): " + Msg);
 				Data();										// Slim.cs
 			}

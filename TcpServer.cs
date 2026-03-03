@@ -18,7 +18,6 @@ namespace blekenbleu.SimHub_Remote_menu
 	// https://dev.to/nickproud/net-tcplistener-accepting-multiple-client-connections-108d
 	partial class HttpServer	// works in .NET Framework 4.8 WPF User Control library (SimHub plugin)
 	{
-		static JavaScriptSerializer js;
 		internal static string SliderProperty;
 		internal static double SliderValue;
 		static TcpListener server = null;		// works for any IP addresses
@@ -39,7 +38,6 @@ namespace blekenbleu.SimHub_Remote_menu
 		internal static async Task OpenAsync()
 		{
 			var fun = Task.Run(() => MultiClientTcpServer());
-			js = new JavaScriptSerializer();		// reuse for each SSE
 			using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
 			{
 				socket.Connect("8.8.8.8", 65530);
@@ -56,13 +54,13 @@ namespace blekenbleu.SimHub_Remote_menu
 		public static async Task MultiClientTcpServer(int port = 8765)
 		{
 			clients = new ConcurrentDictionary<string, SsClient>();
-			urls = new string[] { $"http://localhost:{port}/", @"http://127.0.0.1:{port}/", "real IP" };
+			urls = new string[] { $"http://localhost:{port}/", $"http://127.0.0.1:{port}/", $"http://{localIP}:{port}" };
 
 			try
 			{
 				server = new TcpListener(IPAddress.Any, port);
 				server.Start();
-//				WebMenu.Info($"MultiClientTcpServer(): port {port}");
+				WebMenu.Info($"MultiClientTcpServer(): " + urls[2]);
 
 				// Accept clients continuously
 				for (listening = true; listening;)
