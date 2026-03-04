@@ -20,7 +20,9 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			CurrentCar = null;          // otherwise whatever was set before game change
 			once = true;
+
 			// restore Properties from settings
+			// https://github.com/blekenbleu/SimHub-Remote-menu/blob/main/Properties.md
 			Settings = this.ReadCommonSettings<DataPluginSettings>(
 												"GeneralSettings", () => new DataPluginSettings());
 
