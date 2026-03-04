@@ -31,9 +31,9 @@ However, .ini and .json files may change at any time...
 - an NCalcScripts .ini file may be changed to indicate a different `WebMenu.file`.  
 - Property names may change or move between types.  
 - a different .json file (with the same or different name) may be swapped  
-- users typically will not alter the internally saved instance of most recent property values
+- SimHub's internally saved instance of most recent car property values is unlikely to change between sessions.
 
-WebMenu must sort incompatibilities among .ini, .json and interally saved property sets.
+WebMenu must sort incompatibilities among .ini, .json and interally saved property sets to populate simValues and Steps.
 - In all cases, .ini is considered definitive for *property type* classifications.
 - internally saved instance *values* are considered definitive for global and current car and game
 	- for example, if .ini moves `propertyA` from per-car to `global`,  
