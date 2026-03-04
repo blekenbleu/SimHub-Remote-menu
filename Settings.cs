@@ -2,12 +2,6 @@
 
 namespace blekenbleu.SimHub_Remote_menu
 {
-	public class Property	   // must be public for DataPluginSettings
-	{
-		public string Name { get; set; }
-		public string Value { get; set; }
-	}
-
 	/// <summary>
 	/// Settings class, make sure it can be correctly serialized using JSON.net
 	/// </summary>
