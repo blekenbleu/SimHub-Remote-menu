@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using NAudio.Midi;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
@@ -54,7 +53,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				{
 		    	    butName = md.Value,
 			        devMessage = md.Key,
-        			devName = MidiIn.DeviceInfo((0x07000000 & md.Key) >> 24).ProductName
+//        			devName = MidiIn.DeviceInfo((0x07000000 & md.Key) >> 24).ProductName
 			    }).ToList();
 			}
 			return changed;

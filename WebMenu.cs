@@ -1,7 +1,6 @@
 ﻿using GameReaderCommon;
 using SimHub.Plugins;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace blekenbleu.SimHub_Remote_menu
@@ -103,16 +102,16 @@ namespace blekenbleu.SimHub_Remote_menu
 				for(i = 0; i < simValues.Count; i++)
 					if (null != simValues[i].Name &&  null != simValues[i].Current)
 						Settings.properties.Add(new Property()
-						{ Name  = simValues[i].Name,
-						  Value = simValues[i].Current
+						{ Name  = string.Copy(simValues[i].Name),
+						  Value = string.Copy(simValues[i].Current)
 						});
 
 				Settings.gDefaults = new List<Property> {};
 				for(i = gCount; i < simValues.Count; i++)
 					if (null != simValues[i].Name &&  null != simValues[i].Default)
 						Settings.gDefaults.Add(new Property()
-						{ Name  = simValues[i].Name,
-					  	  Value = simValues[i].Default
+						{ Name  = string.Copy(simValues[i].Name),
+					  	  Value = string.Copy(simValues[i].Default)
 						});
 
 				// capture per-game Default changes

@@ -59,14 +59,6 @@ namespace blekenbleu.SimHub_Remote_menu
 			Selected();
 		}
 
-		// handle all button events in one method
-		internal async void ButEvent(object sender, RoutedEventArgs e)
-		{
-			string butName = (e.OriginalSource as FrameworkElement).Name;
-
-			await EventHandler(butName, -1);
-		}
-
 		internal static void ClickHandle(string butName)	// used by ButEvent(), Process(MidiMessage)
 		{
 			Model.MidiStatus = " ";
@@ -98,12 +90,6 @@ namespace blekenbleu.SimHub_Remote_menu
 					OK.OOpsMB();	// tested 1 Mar 2026
 					break;
 			}
-		}
-
-		// handle slider changes
-		private async void Slider_DragCompleted(object sender, System.Windows.Input.MouseButtonEventArgs e)
-		{
-			await EventHandler("SL", (int)(0.5 + 10 * SL.Value));
 		}
 	}
 }

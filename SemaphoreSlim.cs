@@ -45,5 +45,19 @@ namespace blekenbleu.SimHub_Remote_menu
 			}
 			else OK.FromSlider(0.1 * payload);
 		}
+
+		// handle all button events in one method
+		internal async void ButEvent(object sender, RoutedEventArgs e)
+		{
+			string butName = (e.OriginalSource as FrameworkElement).Name;
+
+			await EventHandler(butName, -1);
+		}
+
+		// handle slider changes
+		private async void Slider_DragCompleted(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+			await EventHandler("SL", (int)(0.5 + 10 * SL.Value));
+		}
 	}
 }

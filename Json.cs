@@ -33,8 +33,9 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		public void SliderButtton()			// List<GameList> Glist) "SelectedAsSlider" AddAction
 		{
-			if (0 > (slider = View.Selection))
-				return;
+			slider = View.Selection;
+            if (0 > slider || slider >= simValues.Count)
+                return;
 
 			Control.Model.SliderProperty = HttpServer.SliderProperty = simValues[slider].Name;
 			/* slider View.SL.Maximum = 100; scale property to it, based on Steps[slider]
