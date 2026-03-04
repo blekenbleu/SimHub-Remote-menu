@@ -18,13 +18,15 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// <param name="pluginManager"></param>
 		public void Init(PluginManager pluginManager)
 		{
-			CurrentCar = null;          // otherwise whatever was set before game change
+			int CarPropCount, GamePropCount;
+			CurrentCar = null;       	   // otherwise whatever was set before game change
 			once = true;
+			simValues = new List<Values>();
 			// restore Properties from settings
 			Settings = this.ReadCommonSettings<DataPluginSettings>(
 												"GeneralSettings", () => new DataPluginSettings());
 
-			// restore previously saved car properties
+			// restore previously saved properties
 			SettingsProps = new List<Property> {};			// deep copy
 			foreach(Property p in Settings.properties)
 				if (null != p.Name && null != p.Value)
@@ -36,22 +38,23 @@ namespace blekenbleu.SimHub_Remote_menu
             string pts, ds = pluginManager.GetPropertyValue(pts = Myni + "properties")?.ToString();
 			string vts, vs = pluginManager.GetPropertyValue(vts = Myni + "values")?.ToString();
 			string sts, ss = pluginManager.GetPropertyValue(sts = Myni + "steps")?.ToString();
-			if ((!(null == ds && (0 == Settings.pcount || OOpa($"per-car properties not found"))))
+			List<string> CarProps;
+
+            if ((!(null == ds && (0 == Settings.pcount || OOpa($"per-car properties not found"))))
 			 && (!(null == vs && OOpa($"'{vts}' not found")))
 			 && (!(null == ss && OOpa($"'{sts}' not found")))
 			   )
 			{
 				// WebMenu.ini defines per-car Properties
-				List<string> CarProps = new List<string>(ds.Split(','));
-				pCount = CarProps.Count;						// these are per-car
+				CarProps = new List<string>(ds.Split(','));
 				List<string> values = new List<string>(vs.Split(','));
 				List<string> steps = new List<string>(ss.Split(','));
-				if (pCount != values.Count || pCount != steps.Count)
-					OOpa($"{pCount} per-car properties;  "
+				if (CarProps.Count != values.Count || CarProps.Count != steps.Count)
+					OOpa($"{CarProps.Count} per-car properties;  "
 						+$"{values.Count} values;  {steps.Count} steps");
 				Populate(CarProps, values, steps);
-			}
-			if (Settings.pcount != simValues.Count)
+			} else CarProps = new List<string>() {};
+            if (Settings.pcount != (CarPropCount = simValues.Count))
 			{
 				set = true;
 				Settings.pcount = simValues.Count;
@@ -69,17 +72,17 @@ namespace blekenbleu.SimHub_Remote_menu
 			 && (!(null == sss && OOpa($"'{stts}' not found")))
 				)
 			{
-				List<string> Sprops = new List<string>(dss.Split(','));
+				List<string> GameProps = new List<string>(dss.Split(','));
 				List<string> values = new List<string>(vss.Split(','));
 				List<string> steps = new List<string>(sss.Split(','));
-				if (Sprops.Count != values.Count || Sprops.Count != steps.Count)
-					OOpa($"{Sprops.Count} gameprops;  {values.Count} gamevals;"
+				if (GameProps.Count != values.Count || GameProps.Count != steps.Count)
+					OOpa($"{GameProps.Count} gameprops;  {values.Count} gamevals;"
 									+ $"  {steps.Count} gamesteps");
-				gCount = (Sprops.Count < values.Count) ? Sprops.Count : values.Count;
+				gCount = (GameProps.Count < values.Count) ? GameProps.Count : values.Count;
 				if (gCount > steps.Count)
-					gCount = steps.Count + pCount;
-				else gCount += pCount;
-				Populate(Sprops, values, steps);
+					gCount = steps.Count + CarProps.Count;
+				else gCount += CarProps.Count;
+				Populate(GameProps, values, steps);
 			}
 			if (Settings.gcount != simValues.Count - Settings.pcount) {
 				set = true;
@@ -100,20 +103,13 @@ namespace blekenbleu.SimHub_Remote_menu
 			 &&  (!(null == sgs && OOpa($"'{sgts}' not found")))
 				)
 			{
-				List<string> Gprops = new List<string>(dgs.Split(','));
+				List<string> GlobalProps = new List<string>(dgs.Split(','));
 				List<string> values = new List<string>(vgs.Split(','));
 				List<string> steps = new List<string>(sgs.Split(','));
-				if (Gprops.Count != values.Count || Gprops.Count != steps.Count)
-					OOpa($"{Gprops.Count} settings;  {values.Count} setvals;"
+				if (GlobalProps.Count != values.Count || GlobalProps.Count != steps.Count)
+					OOpa($"{GlobalProps.Count} settings;  {values.Count} setvals;"
 									+ $"  {steps.Count} setsteps");
-				for (int i = 0; i < Gprops.Count; i++)
-					if (0 == Gprops[i].Length)			// settings may be empty
-					{
-						Gprops.RemoveAt(i);
-						values.RemoveAt(i);
-						steps.RemoveAt(i--);
-					}
-				Populate(Gprops, values, steps);
+				Populate(GlobalProps, values, steps);
 			}
 
 			if (Settings.gDefaults.Count != simValues.Count - (Settings.gcount + Settings.pcount))

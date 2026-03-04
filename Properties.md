@@ -14,18 +14,17 @@ Each property will have 3 values, all numeric
 - default
 
 Given many possible games and cars, lots of settings may accumulate.  
-Instead of saving that property dictionary internally to SimHub,  
-it is save in a .json file located per .ini `WebMenu.file`.  
+Instead of storing that all-games property dictionary internally to SimHub,  
+it is saved in a .json file located per .ini `WebMenu.file`.  
 This facilitates sharing settings among users e.g. sharing a ShakeIt configuration.
 
 New (to WebMenu) cars and games typically inherit properties and values from the most recent car (and game)...  
 Any property value changes are updated in a memory image  
-of the current game dictionary for each car change within a game session,  
-and, when plugin `End()`s, e.g. for game changes,   
-that game dictionary is added to or updated in the .json file containing global properties and all game dictionaries.
+of the current game dictionary for each car change during a game session.  
+When plugin `End()`s, e.g. for game changes, the all-games .json file gets updated.
 
-Loading a new car for unchanged game will use most recent per-car values.
-- if for an existing game *other than most recent*, values will be that game's defaults, *not most-recent* 
+A new car for unchanged game will use most recent per-car values.
+- Otherwise, current and default values will be from that game dictionary. 
 	- *most-recent* values are available as **Previous**.
 
 However, .ini and .json files may change at any time...  
