@@ -30,17 +30,25 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			// restore previously saved properties
 			SettingsProps = new List<Property> {};			// deep copy
-			foreach(Property p in Settings.properties)
-				if (null != p.Name && null != p.Value)
-					SettingsProps.Add(new Property() { Name = p.Name, Value = p.Value });
+			List<string> SettingsDefaults = new List<string> {};
+			if (0 == pluginManager?.GameName.Length || pluginManager?.GameName == Settings?.game)
+				foreach(Property p in Settings.properties)
+					if (null != p.Name && null != p.Value)
+					{
+						int i;
+						SettingsProps.Add(new Property() { Name = p.Name, Value = p.Value });
+						SettingsDefaults.Add((0 > (i = Settings.gDefaults.FindIndex(s => s.Name == p.Name)))
+												? "" : Settings.gDefaults[i].Value);
+					}
+			else set = true;
 
 			Steps = new List<int>() {};     // for Populate()
+			List<string> CarProps, GameProps, GlobalProps;
 
             // property and setting names, default values and steps from WebMenu.ini
             string pts, ds = pluginManager.GetPropertyValue(pts = Myni + "properties")?.ToString();
 			string vts, vs = pluginManager.GetPropertyValue(vts = Myni + "values")?.ToString();
 			string sts, ss = pluginManager.GetPropertyValue(sts = Myni + "steps")?.ToString();
-			List<string> CarProps;
 
             if ((!(null == ds && (0 == Settings.pcount || OOpa($"per-car properties not found"))))
 			 && (!(null == vs && OOpa($"'{vts}' not found")))
@@ -54,13 +62,9 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (CarProps.Count != values.Count || CarProps.Count != steps.Count)
 					OOpa($"{CarProps.Count} per-car properties;  "
 						+$"{values.Count} values;  {steps.Count} steps");
-				Populate(CarProps, values, steps);
+				Populate(CarProps, values, steps, 0, Settings.pcount);
 			} else CarProps = new List<string>() {};
-            if (Settings.pcount != (CarPropCount = simValues.Count))
-			{
-				set = true;
-				Settings.pcount = simValues.Count;
-			}
+			CarPropCount = simValues.Count
 
 			// WebMenu.ini also optionally defines per-game Properties
 			string ptts = Myni + "gameprops";
@@ -74,22 +78,15 @@ namespace blekenbleu.SimHub_Remote_menu
 			 && (!(null == sss && OOpa($"'{stts}' not found")))
 				)
 			{
-				List<string> GameProps = new List<string>(dss.Split(','));
+				GameProps = new List<string>(dss.Split(','));
 				List<string> values = new List<string>(vss.Split(','));
 				List<string> steps = new List<string>(sss.Split(','));
 				if (GameProps.Count != values.Count || GameProps.Count != steps.Count)
 					OOpa($"{GameProps.Count} gameprops;  {values.Count} gamevals;"
 									+ $"  {steps.Count} gamesteps");
-				gCount = (GameProps.Count < values.Count) ? GameProps.Count : values.Count;
-				if (gCount > steps.Count)
-					gCount = steps.Count + CarProps.Count;
-				else gCount += CarProps.Count;
-				Populate(GameProps, values, steps);
-			}
-			if (Settings.gcount != simValues.Count - Settings.pcount) {
-				set = true;
-				Settings.gcount = simValues.Count - Settings.pcount;
-			}			
+				Populate(GameProps, values, steps, Settings.pcount, Settings.gcount);
+			} else GameProps = new List<string>() {};
+			GamePropCount = simValues.Count;
 
 			// WebMenu.ini also optionally defines global settings
 			string pgts = Myni + "settings";
@@ -105,14 +102,19 @@ namespace blekenbleu.SimHub_Remote_menu
 			 &&  (!(null == sgs && OOpa($"'{sgts}' not found")))
 				)
 			{
-				List<string> GlobalProps = new List<string>(dgs.Split(','));
+				GlobalProps = new List<string>(dgs.Split(','));
 				List<string> values = new List<string>(vgs.Split(','));
 				List<string> steps = new List<string>(sgs.Split(','));
 				if (GlobalProps.Count != values.Count || GlobalProps.Count != steps.Count)
 					OOpa($"{GlobalProps.Count} settings;  {values.Count} setvals;"
 									+ $"  {steps.Count} setsteps");
-				Populate(GlobalProps, values, steps);
-			}
+				Populate(GlobalProps, values, steps, Settings.pcount + Settings.gcount,
+						Settings.properties.Count - (Settings.pcount + Settings.gcount));
+			} else GlobalProps = new List<string>() {};
+
+//!!!!!!!! move thes after recovering default global values from Settings !!!!!!!!!!!!!!!!
+			Settings.gcount = GamePropCount - CarPropCount;
+			Settings.pcount = CarPropCount;
 
 			if (Settings.gDefaults.Count != simValues.Count - (Settings.gcount + Settings.pcount))
 			{
@@ -135,14 +137,16 @@ namespace blekenbleu.SimHub_Remote_menu
 				for (gd = 0; gd < Settings.gDefaults.Count; gd++)
 				{
 					int Index = simValues.FindIndex(s => s.Name == Settings.gDefaults[gd].Name);
-					if (Index >= gCount)	// still global?
+					if (Index >= GamePropCount)	// still global?
 						simValues[Index].Default = Settings.gDefaults[gd].Value;
 				}
 
 				string sl = pluginManager.GetPropertyValue(Myni + "slider")?.ToString();
 
-				if (null != sl)
-					slider = simValues.FindIndex(i => i.Name == sl);
+				if (null == sl || 0 == sl.Length)
+					slider = 0;
+				else if (0 > (slider = simValues.FindIndex(i => i.Name == sl)))
+					slider = 0;
 			}
 
 			// at this point, simValues has all properties from .ini,
