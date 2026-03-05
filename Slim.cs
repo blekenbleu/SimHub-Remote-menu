@@ -17,21 +17,22 @@ namespace blekenbleu.SimHub_Remote_menu
 		public List<CarL> cList;		// cList[0] is game Name + default per-car, then per-game property values
 	}
 
-	public class GamesList
+	public class PluginList
 	{
 		public string Plugin;			// NCalcScripts/WebMenu.ini identifies itself as "WebMenu.file"
-		public List<string> pList;		// per-car, then per-game property names, from WebMenu.ini
+		public List<string> pList;		// per-car, then per-game, property names, from WebMenu.ini
+										// global property names, defaults and current values are in Settings
 		public List<GameList> gList;
 	}
 
 	public partial class WebMenu
 	{
-		GamesList data;
+		PluginList data;
 
 		// called in End()
 		public void Data()
 		{
-			data = new GamesList()
+			data = new PluginList()
 			{
 				Plugin = "WebMenu",
 				gList = new List<GameList>() { },	// GameList @ slim.cs line 16
@@ -73,7 +74,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				return true;
 
 			// this fails if GamesList is not all public
-			data = JsonConvert.DeserializeObject<GamesList>(File.ReadAllText(path));
+			data = JsonConvert.DeserializeObject<PluginList>(File.ReadAllText(path));
 			if (null == data || null == data.pList || null == data.gList)
 				return true;
 
