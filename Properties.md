@@ -34,7 +34,7 @@ However, .ini and .json files may change at any time...
 - SimHub's internally saved instance of global and most recent car property values  
 	is unlikely to change between sessions.
 
-WebMenu.Init() sorts incompatibilities among .ini, .json and internally saved properties  
+`WebMenu.Init()` sorts incompatibilities among .ini, .json and internally saved properties  
 to populate simValues and Steps.
 - In all cases, .ini is considered definitive for *property type* classifications.
 - .ini values become defaults for new properties
@@ -43,3 +43,15 @@ to populate simValues and Steps.
 		then that car's game default value becomes the new global default.
 		- Use the Webmenu UI to e.g. reset moved property default value to that in `Webmenu.ini`
 	- global properties changed to per-game retain default Settings values
+
+### internals
+- `WebMenu.Init()` uses `Populate()` to list `simValues`   
+   with `Default`, `Current` and `Previous` values for configured property names.  
+	- Names and initial default values are obtained from `NCalcScripts/WebMenu.ini`.
+		- those initial default values are replaced by matches from `Settings.gDefaults`. 
+- `WebMenu.Init()` also creates an updated `data PluginList`
+	- if modified from loaded `Webmenu.json`, e.g. based on `NCalcScripts/WebMenu.ini`.
+- `WebMenu.End()` will save `Settings` to SimHub if changed and SimHub has loaded some Car[s].
+	- `Settings` to be written would be created from `simValues`.
+- `WebMenu.End()` may also update `data PluginList` from `simValues`  
+   and write to `Webmenu.json` if changed and SimHub has loaded some Car[s].
