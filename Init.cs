@@ -118,9 +118,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			// JSON values for configured properties are supposed more current than .ini
 			if (Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()))
 			{
-				if (0 < Msg.Length)
-					OOpa($"Load({path}): " + Msg);
-				else OOpa($"Load({path}) failed");
+				OOpa($"Load({path}): " + Msg);
 				set = true;
 				data = new PluginList()
 				{
@@ -138,23 +136,20 @@ namespace blekenbleu.SimHub_Remote_menu
 				return;
 			}
 
-			// Recover default global values from Settings
-			// for properties which remain global since previous game instance.
+			// Recover default global values from Settings for matching simValues
+			for (int gd = 0; gd < Settings.gDefaults.Count; gd++)
 			{
-				for (int gd = 0; gd < Settings.gDefaults.Count; gd++)
-				{
-					int Index = simValues.FindIndex(s => s.Name == Settings.gDefaults[gd].Name);
-					if (Index >= GamePropCount)	// still global?
-						simValues[Index].Default = Settings.gDefaults[gd].Value;
-				}
-
-				string sl = pluginManager.GetPropertyValue(Myni + "slider")?.ToString();
-
-				if (null == sl || 0 == sl.Length)
-					slider = 0;
-				else if (0 > (slider = simValues.FindIndex(i => i.Name == sl)))
-					slider = 0;
+				int Index = simValues.FindIndex(s => s.Name == Settings.gDefaults[gd].Name);
+				if (0 <= Index)
+					simValues[Index].Default = Settings.gDefaults[gd].Value;
 			}
+
+			string sl = pluginManager.GetPropertyValue(Myni + "slider")?.ToString();
+
+			if (0 == sl?.Length)
+				slider = 0;
+			else if (0 > (slider = simValues.FindIndex(i => i.Name == sl)))
+				slider = 0;
 
 			// at this point, simValues has all properties from .ini with .ini defaults,
 			// previous Settings defaults and json values
