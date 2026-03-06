@@ -1,6 +1,5 @@
 ﻿using GameReaderCommon;
 using SimHub.Plugins;
-using System.Collections.Generic;
 using System.Windows.Media;
 
 namespace blekenbleu.SimHub_Remote_menu
