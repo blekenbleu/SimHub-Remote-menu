@@ -151,7 +151,9 @@ namespace blekenbleu.SimHub_Remote_menu
 			if (0 == simValues.Count)
 				return;
 
-			if (0 < cname?.Length && 0 < gnew?.Length)	// valid?
+			if (0 == cname?.Length)
+				Msg = "empty CarID";
+			else if (0 < gnew?.Length)	// valid?
 			{
 				GameList game = null;
 				int i, count = 0, vcount = 0;
@@ -163,7 +165,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				ml = Msg.Length;
 
 				for (i = 0; i < simValues.Count; i++)			// copy Current to previous
-					Previous(i, simValues[i].Current);
+					SetPrevious(i, simValues[i].Current);
 
 				// indices for new car
 				if (0 <= GameIndex(gnew))						// sets gndx
@@ -178,39 +180,32 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (0 > cndx && null != game)
 				{
 					NewCar = "true";
-					if (0 <= gndx)									// set at line 132
-					{												// not a new game
+					if (0 <= gndx)
+					{                                   // not a new game
 						if (gnew != Settings.game)
-						{											// different game
-							count = GamePropCount > vcount ? vcount : GamePropCount;
-							for (i = 0; i < count; i++)				// per-car defaults
-								Default(i, game.cList[0].Vlist[i]);
-						}
-						for (i = CarPropCount; i < count; i++)		// ONLY per-game defaults
-							Default(i, game.cList[0].Vlist[i]);		// perhaps altered since .ini
+							i = 0;                      // different game, also set per-car
+						else i = CarPropCount;			// ONLY per-game defaults
+						for (; i < GamePropCount; i++)
+							SetDefault(i);				// perhaps altered since .ini
 					}
 				}
 				else
 				{													// existing car
-						NewCar = "false";
-						if (cname != Settings.carid && null != game)				// previous car?
-							for (i = 0; i < GamePropCount; i++)
-								Current(i, game.cList[cndx].Vlist[i]);
-						if (null == CurrentCar && null != game)						// first in this game instance?
-						{											// restore game defaults
-							count = GamePropCount > vcount ? vcount : GamePropCount;
-							for (i = 0; i < count; i++)
-								Default(i, game.cList[0].Vlist[i]);
-							count = GamePropCount > vcount ? vcount : GamePropCount;
-							for(i = GamePropCount; i < count; i++)
-								Current(i, Default(i, game.cList[0].Vlist[i]));
-						}
+					NewCar = "false";
+					if (cname != Settings.carid && null != game)	// previous car?
+						for (i = 0; i < GamePropCount; i++)
+							SetCurrent(i, game.cList[cndx].Vlist[i]);
+					if (null == CurrentCar && null != game)			// first in this game instance?
+					{												// restore game defaults
+						for (i = 0; i < CarPropCount; i++)
+							SetDefault(i);
+						for(; i < GamePropCount; i++)
+							SetCurrent(i, SetDefault(i, game.cList[0].Vlist[i]));
+					}
 				}
 				Settings.carid = CurrentCar = cname;
 				Changed();
 			}
-			else if (0 == cname?.Length)
-				Msg = "empty CarID";
 
 			if (0 == gnew?.Length)
 				Msg += ", empty CurrentGame Name, ";
