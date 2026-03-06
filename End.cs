@@ -12,7 +12,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// <param name="pluginManager"></param>
 		public void End(PluginManager pluginManager)
 		{
-			if (0 < Gname.Length && SaveSlim()) {				// Save settings
+			if (0 < Gname.Length && (SaveSlim() || set)) {				// Save settings
 				int i;
 
 				set = true;									// save Current values
@@ -49,7 +49,7 @@ namespace blekenbleu.SimHub_Remote_menu
 							 Newtonsoft.Json.Formatting.Indented);
 				if (0 == sjs.Length || "{}" == sjs)
 					OOps("End():  Json Serializer failure");
-				else System.IO.File.WriteAllText(path, sjs);
+				else System.IO.File.WriteAllText("R:\\Temp\\WebMenu.json", sjs);	// path, sjs);
 			}
 		}
 	}

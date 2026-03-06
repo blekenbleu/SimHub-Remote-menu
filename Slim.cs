@@ -12,7 +12,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		public List<string> Vlist { get; set; }	// property values	(game defaults for Carl[0])
 	}
 
-	public class GameList
+	public class GameList																					//	gl
 	{
 		public List<CarL> cList;		// cList[0] is game Name + default per-car, then per-game property values
 	}
@@ -20,28 +20,14 @@ namespace blekenbleu.SimHub_Remote_menu
 	public class PluginList
 	{
 		public string Plugin;			// NCalcScripts/WebMenu.ini identifies itself as "WebMenu.file"
-		public List<string> pList;		// per-car, then per-game, property names, from WebMenu.ini
+		public List<string> pList;		// per-car, then per-game, property names, from WebMenu.ini				oldpList
 										// global property names, defaults and current values are in Settings
-		public List<GameList> gList;
+		public List<GameList> gList;																		//	newList
 	}
 
 	public partial class WebMenu
 	{
 		PluginList data;
-
-		// called in End()
-		public void Data()
-		{
-			data = new PluginList()
-			{
-				Plugin = "WebMenu",
-				gList = new List<GameList>() { },	// GameList @ slim.cs line 16
-				// property names
-				pList = new List<string> { }		// per-car, then per-game
-			};
-			for (int i = 0; i < gCount; i++)
-				data.pList.Add(simValues[i].Name);
-		}
 
 		// Reconcile .json values with simValues based on .ini and Settings
 		private List<string> Reconcile(List<string> vList, int car)
@@ -64,6 +50,12 @@ namespace blekenbleu.SimHub_Remote_menu
 			return New;
 		}
 
+		bool Boop(string s)
+		{
+			Msg = s;
+			return true;
+		}
+
 		// load Slim .json and reconcile with CurrentCar-specific simValues from NCalcScripts/WebMenu.ini
 		// return true if path fails or unrecoverable JSON
 		// .ini may have added, deleted or moved properties among per-car, per-game and global
@@ -71,12 +63,12 @@ namespace blekenbleu.SimHub_Remote_menu
 		internal bool Load(string path)	// from NCalcScripts\WebMenu.ini 'WebMenu.file'
 		{
 			if (!File.Exists(path))
-				return true;
+				return Boop(" does not exist");
 
 			// this fails if GamesList is not all public
 			data = JsonConvert.DeserializeObject<PluginList>(File.ReadAllText(path));
 			if (null == data || null == data.pList || null == data.gList)
-				return true;
+				return Boop(" failed DeserializeObject()");
 
 			// Now, can only return false, meaning data fully reconciled to simValues
 
