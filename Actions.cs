@@ -31,7 +31,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			iv += sign * step;
 			if (0 <= iv)
 			{
-				Current(View.Selection, (0 != step % 100) ? $"{(float)(0.01 * iv)}"
+				SetCurrent(View.Selection, (0 != step % 100) ? $"{(float)(0.01 * iv)}"
 										: $"{(int)(0.004 + 0.01 * iv)}");
 				Changed();
 				if (slider == View.Selection)
@@ -65,27 +65,27 @@ namespace blekenbleu.SimHub_Remote_menu
 			for (int i = 0; i < simValues.Count; i++)
 			{
 				temp = simValues[i].Previous;
-				Previous(i, simValues[i].Current);
-				Current(i, temp);
+				SetPrevious(i, simValues[i].Current);
+				SetCurrent(i, temp);
 			}
 			ToSlider();		// Swap()
 			Changed();
 		}
 
-		internal void SetDefault()					// List<GameList> Glist) "CurrentAsDefaults" AddAction
+		internal void SetDefault()						// List<GameList> Glist) "CurrentAsDefaults" AddAction
 		{
 			if (0 == Gname.Length)
 				OOps("SetDefault: no Gname");
 			else {
 				int p = View.Selection;
 
-				Default(p, simValues[p].Current);	// End() sorts per-game changes
+				SetDefault(p, simValues[p].Current);	// End() sorts per-game changes
 				Changed();
 			}
 		}
 
 		// supporting cast ===================================================
-		string Current(int i, string value)	// Ment(), Swap(), FromSlider(), Slider_DragCompleted()
+		string SetCurrent(int i, string value)	// Ment(), Swap(), FromSlider(), Slider_DragCompleted()
 		{
 			simValues[i].Current = value;
 			HttpServer.SSEcell(1 + i, 1, value);
@@ -94,10 +94,10 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		void CurrentSlider(double value)
 		{
-			Current(slider, (SliderFactor[0] * (int)(0.5 + value)).ToString());
+			SetCurrent(slider, (SliderFactor[0] * (int)(0.5 + value)).ToString());
 		}
 
-		string Previous(int i, string value)	// Swap()
+		string SetPrevious(int i, string value)	// Swap()
 		{
 			simValues[i].Previous = value;
 			HttpServer.SSEcell(1 + i, 2, value);
@@ -111,11 +111,16 @@ namespace blekenbleu.SimHub_Remote_menu
 		}
 
 		// simValues set methods
-		string Default(int i, string value)		// SetDefault(), CarChange()
+		string SetDefault(int i, string value)	// SetDefault(), SetDefault(i)
 		{
 			simValues[i].Default = value;
 			HttpServer.SSEcell(1 + i, 3, value);
 			return value;
+		}
+
+		string SetDefault(int i)				// CarChange()
+		{
+			return SetDefault(i, data.gList[gndx].cList[0].Vlist[i]);
 		}
 
 		internal void ToSlider()				// Ment(), Swap(), SetSlider(), CarChange()
