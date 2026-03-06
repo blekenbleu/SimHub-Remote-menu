@@ -14,20 +14,18 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		internal static string Msg = "";
 
-		static int pCount = 0;					// append per-game settings after pCount
-		static int gCount = 0;					// append global settings after gCount
-		static readonly string My = "WebMenu.";	// breaks Ini if not preceding
-												// configuration source
+		// breaks Ini if not preceding configuration source
+		static readonly string My = "WebMenu.";
 		static readonly string Myni = "DataCorePlugin.ExternalScript." + My;
 
 		bool set = false, once = true;
 		string CurrentCar;
 		string Gname = "";
-		int slider = -1;						// simValues index for configured JSONIO.properties
-		int gndx = -1, cndx = -1;						// current car data.gList indices
 		string path;									// JSON file location
+		int gndx = -1, cndx = -1;						// current car data.gList indices
+		int slider = -1;								// assigned simValues index
 		readonly double[] SliderFactor = new double[] { 0, 0 };
-		bool write = false;								// slim should not change
+		bool write = false;								// slim JSON unchanged
 
 		/// <summary>
 		/// Plugin-specific wrapper for SimHub.Logging.Current.Info();

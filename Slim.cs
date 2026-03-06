@@ -29,27 +29,6 @@ namespace blekenbleu.SimHub_Remote_menu
 	{
 		PluginList data;
 
-		// Reconcile .json values with simValues based on .ini and Settings
-		private List<string> Reconcile(List<string> vList, int car)
-		{
-			List<string> New = new List<string> {};
-			// car[0] is per-game car default and per-game property values
-			int count = (0 == car) ? gCount : pCount;
-
-			if (count > simValues.Count)
-				count = simValues.Count;		// it happens 19 Feb 2025
-
-			for (int i = 0; i < count; i++)
-			{
-				int Index =  data.pList.FindIndex(j => j == simValues[i].Name);
-
-				if (-1 == Index || Index >= vList.Count)
-					New.Add(simValues[i].Default);
-				else New.Add(vList[Index]);	// reuse as many as possible
-			}
-			return New;
-		}
-
 		bool Boop(string s)
 		{
 			Msg = s;
@@ -67,65 +46,49 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			// this fails if GamesList is not all public
 			data = JsonConvert.DeserializeObject<PluginList>(File.ReadAllText(path));
-			if (null == data || null == data.pList || null == data.gList)
+			if (null == data || 0 == data.pList?.Count || 0 == data.gList?.Count)
 				return Boop(" failed DeserializeObject()");
 
-			// Now, can only return false, meaning data fully reconciled to simValues
+			// Now, can only return false, meaning some data with which to work
+			string s = "";
+			int nullcarID = 0, nullcList = 0;
 
-			if (null == data.Plugin || "WebMenu" != data.Plugin) {
-				OOpa($"Slim.Load({path}) data.Plugin: '{data.Plugin}' != 'WebMenu'");
+			if ("WebMenu" != data?.Plugin) {
+				s += "'{data?.Plugin}' != 'WebMenu'";
 				data.Plugin = "WebMenu";	// user has at least been warned...
 			}
 
-			int nullcarID = 0;
-			int pcount = pCount;
-			int gcount = gCount;
-			int i, g, c;
-
-			if (gcount != data.pList.Count)
-				i = -1;
-			else for (i = 0; i < data.pList.Count; i++)
-				if (data.pList[i] != simValues[i].Name)
-					break;
-
-			if (i == gcount)
-				for (g = 0; g < data.gList.Count; g++)
-					if (null != data.gList[g].cList)
-					{
-						if (data.gList[g].cList.Count < 2 || data.gList[g].cList[0].Vlist.Count != gcount)
-						{ i--; break; }
-						else for (c = 0; c < data.gList[g].cList.Count; c++)
-								if (data.gList[g].cList[c].Vlist.Count != ((0 == c) ? gcount : pcount))
-								{ i--; g = data.gList.Count; break; }
-					}
-
-			if (i != gcount)
-			// repopulate car properties according to simValues
+			for (int i = 0; i < data.gList.Count; i++)					// all games
 			{
-				if (!set)	// already warned
-					OOpa($"Slim.Load({path}):  pList mismatch");
-				if (i != pcount)
-					for (i = 0; i < data.gList.Count; i++)					// all games
+				if (2 > data.gList[i].cList?.Count)
+				{
+					nullcList++;
+					data.gList.RemoveAt(i--);
+					continue;
+				}
+
+				for (int c = 0; c < data.gList[i].cList.Count; c++)	// all cars in game
+					if (0 == data.gList[i].cList[c].Name?.Length)
 					{
-						if (null == data.gList[i].cList)
-							continue;
-						for (c = 0; c < data.gList[i].cList.Count; c++)	// all cars in game
-							if (null == data.gList[i].cList[c].Name)
-							{
-								nullcarID++;
-								data.gList[i].cList.RemoveAt(c--);
-							}
-							else data.gList[i].cList[c].Vlist = Reconcile(data.gList[i].cList[c].Vlist, c);
+						nullcarID++;
+						data.gList[i].cList.RemoveAt(c--);
 					}
-				data.pList = new List<string> {};
-				for (i = 0; i < gcount; i++)
-					data.pList.Add(simValues[i].Name);
+			}
+
+			if (0 < nullcList)
+			{
+				if (0 < s.Length)
+					s += "\n\t";
+				s += $"{nullcList} bad car Lists";
 			}
 			if (0 < nullcarID)
-				OOpa($"Slim.Load({path}): {nullcarID} null carIDs");
-
-			if (data.gList.Count < 1 || data.gList[0].cList.Count < 2)
-				OOpa($"Slim.Load({path}): empty data.gList");
+			{
+				if (0 < s.Length)
+					s += "\n\t";
+				s += $"{nullcarID} empty carIDs";
+			}	
+			if (0 < s.Length)
+				OOpa($"Slim.Load({path}):  " + s);
 
 			return false;
 		}	// Load()

@@ -15,13 +15,9 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (!SaveSlim())
 					return changed;
 
-			// this should be unnecessary if Reconcile() works..
-			if (gCount != data.gList[gndx].cList[0].Vlist.Count
-			 || pCount != data.gList[gndx].cList[cndx].Vlist.Count)
-				changed = true;
-			else for (int p = 0; p < gCount; p++)
+			for (int p = 0; p < GamePropCount; p++)
 				if (simValues[p].Default != data.gList[gndx].cList[0].Vlist[p]			// per-game default change?
-		 		 || p < pCount && simValues[p].Current != data.gList[gndx].cList[cndx].Vlist[p]) // per-car change?
+		 		 || p < CarPropCount && simValues[p].Current != data.gList[gndx].cList[cndx].Vlist[p]) // per-car change?
 				{
 					changed = true;
 					break;
@@ -64,51 +60,50 @@ namespace blekenbleu.SimHub_Remote_menu
 			ToSlider();
 		}
 
-		List<string> DefaultCopy()		// called in SaveSlim(), End()
+		List<string> GameDefaults()		// called in SaveSlim(), End()
 		{
 			int i;
 			List<string> New = new List<string> { };
-			for (i = 0; i < gCount; i++)
+			for (i = 0; i < GamePropCount; i++)
 				New.Add(simValues[i].Default);
 			return New;
 		}
 
-		List<string> CurrentCopy()		// called in SaveSlim()
+		List<string> CurrentCarCopy()		// called in SaveSlim()
 		{
 			int i;
 			List<string> New = new List<string> { };
-			for (i = 0; i < pCount; i++)
+			for (i = 0; i < CarPropCount; i++)
 				New.Add(simValues[i].Current);
 			return New;
 		}
 
 		int GameIndex(string gnew)
 		{
-			if (1 > gnew.Length)
+			if (1 > gnew?.Length)
 				return gndx;										// should be unlikely
 
 			for (int g = 0; g < data.gList.Count; g++)
-				if (0 == data.gList[g].cList.Count
-				 || null == data.gList[g].cList[0].Name)
-					data.gList.RemoveAt(g--);					// Reconcile() failure
-				else if (gnew == data.gList[g].cList[0].Name)
-					gndx = g;
+				if (gnew == data.gList[g]?.cList[0]?.Name)
+					return gndx = g;
+
 			return gndx;
 		}
 
-		bool SaveSlim()	// called in End(), CarChange() and maybe Changed()
+        // add or update car and per-game default values;
+		// return whether JSON needs to be saved to disk
+        bool SaveSlim()	// called in End(), CarChange() and maybe Changed()
 		{
-			if (null == CurrentCar || 0 == gCount)
+			if (null == CurrentCar || 0 == GamePropCount)
 				return false;			// nothing to save
 
 			if (0 > GameIndex(Gname))	// first car for this game?
 			{
-				write = true;			// first car
 				gndx = data.gList.Count;
 				data.gList.Add(new GameList
 					{ cList = new List<CarL>
 						{ new CarL { Name = Gname,
-									 Vlist = DefaultCopy()
+									 Vlist = GameDefaults()
 								   }
 						}
 					}
@@ -121,21 +116,21 @@ namespace blekenbleu.SimHub_Remote_menu
 				cndx = data.gList[gndx].cList.Count;
 				data.gList[gndx].cList.Add(new CarL
 					{ Name = CurrentCar,
-					  Vlist = CurrentCopy()
+					  Vlist = CurrentCarCopy()
 					}
 				);
 			} else {								// property value changes?
-				for (int i = 0; i < gCount; i++)
+				for (int i = 0; i < GamePropCount; i++)
 					if (data.gList[gndx].cList[0].Vlist[i] != simValues[i].Default)
 					{
-						data.gList[gndx].cList[0].Vlist = DefaultCopy();
+						data.gList[gndx].cList[0].Vlist = GameDefaults();
 						write = true;	// per-game property change
 						break;
 					}
-				for (int i = 0; i < pCount; i++)
+				for (int i = 0; i < GamePropCount; i++)
 					if (data.gList[gndx].cList[cndx].Vlist[i] != simValues[i].Current)
 					{
-						data.gList[gndx].cList[cndx].Vlist = CurrentCopy();
+						data.gList[gndx].cList[cndx].Vlist = CurrentCarCopy();
 						write = true;	// per-car property change
 						break;
 					}
@@ -156,7 +151,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			if (0 == simValues.Count)
 				return;
 
-			if (null !=cname && 0 < cname.Length && null != gnew && 0 < gnew.Length)	// valid?
+			if (0 < cname?.Length && 0 < gnew?.Length)	// valid?
 			{
 				GameList game = null;
 				int i, count = 0, vcount = 0;
@@ -176,7 +171,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					game = data.gList[gndx];
 					cndx = game.cList.FindIndex(c => c.Name == cname);
 					vcount = game.cList[0].Vlist.Count;
-					count = gCount > vcount ? vcount : gCount;
+					count = GamePropCount > vcount ? vcount : GamePropCount;
 				}
 				else cndx = -1;
 
@@ -187,41 +182,37 @@ namespace blekenbleu.SimHub_Remote_menu
 					{												// not a new game
 						if (gnew != Settings.game)
 						{											// different game
-							count = pCount > vcount ? vcount : pCount;
+							count = GamePropCount > vcount ? vcount : GamePropCount;
 							for (i = 0; i < count; i++)				// per-car defaults
 								Default(i, game.cList[0].Vlist[i]);
 						}
-						for (i = pCount; i < count; i++)			// per-game defaults
-							Default(i, game.cList[0].Vlist[i]);	// perhaps altered since .ini
+						for (i = CarPropCount; i < count; i++)		// ONLY per-game defaults
+							Default(i, game.cList[0].Vlist[i]);		// perhaps altered since .ini
 					}
 				}
 				else
 				{													// existing car
 						NewCar = "false";
 						if (cname != Settings.carid && null != game)				// previous car?
-							for (i = 0; i < pCount; i++)
+							for (i = 0; i < GamePropCount; i++)
 								Current(i, game.cList[cndx].Vlist[i]);
 						if (null == CurrentCar && null != game)						// first in this game instance?
 						{											// restore game defaults
-							count = pCount > vcount ? vcount : pCount;
+							count = GamePropCount > vcount ? vcount : GamePropCount;
 							for (i = 0; i < count; i++)
 								Default(i, game.cList[0].Vlist[i]);
-							count = gCount > vcount ? vcount : gCount;
-							for(i = pCount; i < count; i++)
+							count = GamePropCount > vcount ? vcount : GamePropCount;
+							for(i = GamePropCount; i < count; i++)
 								Current(i, Default(i, game.cList[0].Vlist[i]));
 						}
 				}
 				Settings.carid = CurrentCar = cname;
 				Changed();
 			}
-			else if (null == cname)
-				Msg = "null CarID";
-			else if (0 == cname.Length)
+			else if (0 == cname?.Length)
 				Msg = "empty CarID";
 
-			if (null == gnew)
-				Msg += ", null CurrentGame Name, ";
-			else if (0 == gnew.Length)
+			if (0 == gnew?.Length)
 				Msg += ", empty CurrentGame Name, ";
 			else Gname = gnew;
 

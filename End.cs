@@ -12,7 +12,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// <param name="pluginManager"></param>
 		public void End(PluginManager pluginManager)
 		{
-			if (0 < Gname.Length && (SaveSlim() || set)) {				// Save settings
+			if (0 < Gname.Length && 0 < CurrentCar?.Length && (SaveSlim() || set)) {				// Save settings
 				int i;
 
 				set = true;									// save Current values
@@ -28,7 +28,7 @@ namespace blekenbleu.SimHub_Remote_menu
 							{ Name  = string.Copy(simValues[i].Name),
 							  Value = string.Copy(simValues[i].Current)
 							});
-						if (i >= gCount && 0 < simValues[i]?.Default?.Length)
+						if (i >= GamePropCount && 0 < simValues[i]?.Default?.Length)
 							Settings.gDefaults.Add(new Property()
 							{ Name  = string.Copy(simValues[i].Name),
 					  		  Value = string.Copy(simValues[i].Default)
@@ -36,13 +36,13 @@ namespace blekenbleu.SimHub_Remote_menu
 					}
 
 				if (write)	// capture per-game Default changes
-					data.gList[gndx].cList[0].Vlist = DefaultCopy();	// Json.cs
+					data.gList[gndx].cList[0].Vlist = GameDefaults();	// Json.cs
 			}
 
 			if (MIDI.Stop() || set)			// .ini mismatches Settings or game run
 				this.SaveCommonSettings("GeneralSettings", Settings);
 
-			if (write)
+			if (write && 0 < CurrentCar?.Length)
 			{
 				// SerializeObject requires public data and GamesList
 				string sjs = Newtonsoft.Json.JsonConvert.SerializeObject(data,

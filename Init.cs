@@ -6,6 +6,7 @@ namespace blekenbleu.SimHub_Remote_menu
 {
 	public partial class WebMenu : IPlugin
 	{
+		int CarPropCount = 0, GamePropCount = 0;
 		bool OOpa(string msg)   // defer MessageBox.Show() until GetWPFSettingsControl()
 		{
 			Msg += msg + "\n";
@@ -18,7 +19,6 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// <param name="pluginManager"></param>
 		public void Init(PluginManager pluginManager)
 		{
-			int CarPropCount, GamePropCount;
 
 			CurrentCar = null;	   	   // otherwise whatever was set before game change
 			once = true;
@@ -160,11 +160,10 @@ namespace blekenbleu.SimHub_Remote_menu
 			// previous Settings defaults and json values
 			bool update = false;
 
-			List<string> oldpList = data.pList;
-			if (GamePropCount != oldpList.Count)
+			if (GamePropCount != data.pList.Count)
 				update = true;
 			else for (int i = 0; i < GamePropCount && !update; i++)
-				if (simValues[i].Name != oldpList[i])
+				if (simValues[i].Name != data.pList[i])
 					update = true;
 
 			if (update)
@@ -183,15 +182,12 @@ namespace blekenbleu.SimHub_Remote_menu
 					newList.Add(gl);
 				}
 
-				data.pList.Clear();
-
 				int which = -1, where = -1;
 
 				for (int i = 0; i < GamePropCount; i++)	// sort collected properties
 				{
-					int pi = oldpList.FindIndex(s => s == simValues[i].Name);
+					int pi = data.pList.FindIndex(s => s == simValues[i].Name);
 
-					data.pList.Add(simValues[i].Name);
 					// seek values for each simValues[i].Name
 					if (0 <= pi)
 					{
@@ -217,7 +213,7 @@ namespace blekenbleu.SimHub_Remote_menu
 							for (int c = 0; c < data.gList[g].cList.Count; c++)
 								newList[g].cList[c].Vlist.Add(Settings.gDefaults[where].Value);
 					else for (int g = 0; g < data.gList.Count; g++)
-						for (int c = 1; c < data.gList[g].cList.Count; c++)
+						for (int c = 0; c < data.gList[g].cList.Count; c++)
 							newList[g].cList[c].Vlist.Add(simValues[i].Default);
 				}
 				data.gList = newList;
