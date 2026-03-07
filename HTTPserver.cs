@@ -160,7 +160,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		static string Table ()
 		{
-			string data = head + HTMLtable(WebMenu.simValues) + end;
+			string data = head + HTMLtable() + end;
 			string sw =
 			"HTTP/1.1 200 OK\n"
 			+ "Content-Type:text/html; charset=UTF-8\n"
