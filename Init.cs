@@ -24,7 +24,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			List<string> CarProp = new List<string> {}, GameProp = new List<string> {};
 
 			// forget previous game
-			Gname = CurrentCar = null;			// CarChange() will set
+			Gname = CurrentCar = "";			// CarChange() will set
 			once = true;
 			Steps = new List<int>() {};			// for Populate()
 			simValues = new List<Values>();

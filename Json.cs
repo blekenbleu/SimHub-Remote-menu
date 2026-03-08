@@ -14,12 +14,21 @@ namespace blekenbleu.SimHub_Remote_menu
 			if (0 > gndx || 0 > cndx)
 				return changed;
 
-			for (int p = 0; (!changed) && p < simValues.Count; p++)
-				if (simValues[p].Default != (p < GamePropCount ? data.gList[gndx].cList[0].vList[p]
-																: Settings.gDefaults[p - GamePropCount].Value))
+			for (int p = 0; p < CarPropCount; p++)
+				if (simValues[p].Current != data.gList[gndx].cList[cndx].vList[p]) // per-car
+				{
 					changed = true;
-				else if (p < CarPropCount && simValues[p].Current != data.gList[gndx].cList[cndx].vList[p])	// per-car
-					changed = true;
+					break;
+				}
+
+			if (!changed)
+				for (int p = 0; p < simValues.Count; p++)
+					if (simValues[p].Default != (p < GamePropCount ? data.gList[gndx].cList[0].vList[p]
+														: Settings.gDefaults[p - GamePropCount].Value))
+					{
+						changed = true;
+						break;
+					}
 
 			Control.Model.ChangedVisibility = changed ? Visibility.Visible : Visibility.Hidden;
 			return changed;

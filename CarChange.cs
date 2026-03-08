@@ -29,7 +29,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			game = data.gList[gndx];
 
 			Msg = "Current Car: " + cname;
-			if (0 < Gname?.Length && SaveSlim())		// do not save first instance
+			if (0 < Gname.Length && SaveSlim())		// do not save first instance
 				Msg += $";  {CurrentCar} saved";
 			ml = Msg.Length;
 
@@ -50,7 +50,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (cname != Settings.carid)		// previous car?
 					for (i = 0; i < CarPropCount; i++)
 						SetCurrent(i, game.cList[cndx].vList[i]);
-				if (null == CurrentCar)				// first in this game instance?
+				if (0 == CurrentCar.Length)			// first in this game instance?
 				{									// restore game defaults
 					for (i = 0; i < CarPropCount; i++)
 						SetDefault(i);

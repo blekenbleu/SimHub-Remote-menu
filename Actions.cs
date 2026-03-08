@@ -22,7 +22,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// <param name="prefix"></param> should be "in" or "de"
 		public void Ment(int sign)
 		{
-			if (0 == Gname.Length || null == CurrentCar || 0 == CurrentCar.Length)
+			if (0 == Gname.Length || 0 == CurrentCar.Length)
 				return;
 
 			int step = Steps[View.Selection];
@@ -45,7 +45,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// <param name="next"></param> false for prior
 		public void Select(bool next)
 		{
-			if (0 == Gname.Length || null == CurrentCar || 0 == CurrentCar.Length)
+			if (0 == Gname.Length || 0 == CurrentCar.Length)
 				return;
 
 			if (next)
