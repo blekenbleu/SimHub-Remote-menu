@@ -82,13 +82,19 @@
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="CarChange.cs" />
+    <Compile Include="ClientSSE.cs" />
     <Compile Include="Control.midi.cs" />
     <Compile Include="End.cs" />
+    <Compile Include="HTML.cs" />
+    <Compile Include="HTTPserver.cs" />
     <Compile Include="Init.cs" />
     <Compile Include="Json.cs" />
     <Compile Include="Parse_ini.cs" />
     <Compile Include="Populate.cs" />
+    <Compile Include="SSEhandler.cs" />
+    <Compile Include="SSEvents.cs" />
     <Compile Include="strip.cs" />
+    <Compile Include="TcpServer.cs" />
     <Compile Include="UpdateSlim.cs" />
     <Compile Include="WebMenu.cs" />
     <Compile Include="Settings.cs" />

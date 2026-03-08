@@ -8,8 +8,10 @@ namespace blekenbleu.SimHub_Remote_menu
 {
 	partial class HttpServer	// works in .NET Framework 4.8 WPF User Control library (SimHub plugin)
 	{
-		// adapted from https://github.com/blekenbleu/TcpMultiClient
-		internal static void Start(Control v)
+		static Control View;
+
+        // adapted from https://github.com/blekenbleu/TcpMultiClient
+        internal static void Start(Control v)
 		{
 			if (null == View)	// continue running over game changes
 				Task.Run(() => HttpServer.OpenAsync());

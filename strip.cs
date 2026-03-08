@@ -1,15 +1,9 @@
 using System.Windows;
 
+// stub out MIDI and TCPlistener
 namespace blekenbleu.SimHub_Remote_menu
 {
-	// stub out MIDI and TCPlistener
-	public class MidiDev			// must be public for Settings.cs
-	{
-		public string devName, butName;
-		public int devMessage;	// {4-bit dev = 1-bit button | 3-bit lMidiIn index} | data2 | data 1 | status
-	}
-
-	class HttpServer
+/*	class HttpServer
 	{
 		internal static string SliderProperty;
 		internal static double SliderValue;
@@ -19,6 +13,12 @@ namespace blekenbleu.SimHub_Remote_menu
 		internal static void SSEscroll(byte b) {}
 		internal static void SSEslide(double v, string p) {}
 		internal static void Start(Control v) {}
+	}
+ */
+	public class MidiDev			// must be public for Settings.cs
+	{
+		public string devName, butName;
+		public int devMessage;	// {4-bit dev = 1-bit button | 3-bit lMidiIn index} | data2 | data 1 | status
 	}
 
 	class MIDI

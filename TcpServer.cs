@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 
 namespace blekenbleu.SimHub_Remote_menu
 {

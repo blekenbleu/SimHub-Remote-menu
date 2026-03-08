@@ -8,7 +8,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		internal static string HTMLtable(string tableStyle = "font-size: 25px;",
 				 string messageStyle = "width:600; color:navy; background-color:silver")
 		{
-			StringBuilder builder = new StringBuilder("\n<p id=msg style='{messageStyle}'>");	// https://jonskeet.uk/csharp/stringbuilder.html
+			StringBuilder builder = new StringBuilder("\n<p id=msg style='{").Append(messageStyle).Append("'>");	// https://jonskeet.uk/csharp/stringbuilder.html
 
 			// message paragraph
 			builder.Append(ViewModel.SSEtext(false)).Append("</p>");
@@ -20,7 +20,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			builder.Append("\n<table id=tok style='").Append(tableStyle).Append("'>\n<br><tr><th>Property</th><th>Current</th><th>Previous</th><th>Default</th></tr>");
 			foreach (var row in WebMenu.simValues)
 				builder.Append($"\n<tr><td>{row.Name}</td><td>{row.Current}</td><td>{row.Previous}</td><td>{row.Default}</td></tr>");
-			builder.Append("\n</table>").Append(JavaScript());
+			builder.Append("\n</table>").Append(ClientSSE());
 			return builder.ToString();
 		}
 	}

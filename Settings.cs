@@ -14,7 +14,8 @@ namespace blekenbleu.SimHub_Remote_menu
 		public List<Property> properties = new List<Property>()
 		{
 			// each current Value stored as string of integer 10x actual value
-			// most recent per-car, then per-game, then global values saved by `End()`
+			// most recent per-car, then per-game, then Current global values
+			// saved by `SettingsFrom_simValues()`
 		};
 
 		public int pcount = 0;	// per-car property count in properties
