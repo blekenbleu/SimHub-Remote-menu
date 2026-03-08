@@ -14,16 +14,12 @@ namespace blekenbleu.SimHub_Remote_menu
 			if (0 > gndx || 0 > cndx)
 				return changed;
 
-			for (int p = 0; p < simValues.Count; p++)
-			
-				if (simValues[p].Default != data.gList[gndx].cList[0].vList[p]							// per-game default
-		 		 || (p < CarPropCount && simValues[p].Current != data.gList[gndx].cList[cndx].vList[p])	// per-car
-				 || (p >= GamePropCount && simValues[p].Default != Settings.gDefaults[p - GamePropCount].Value)	// global
-				)
-				{
+			for (int p = 0; (!changed) && p < simValues.Count; p++)
+				if (simValues[p].Default != (p < GamePropCount ? data.gList[gndx].cList[0].vList[p]
+																: Settings.gDefaults[p - GamePropCount].Value))
 					changed = true;
-					break;
-				}
+				else if (p < CarPropCount && simValues[p].Current != data.gList[gndx].cList[cndx].vList[p])	// per-car
+					changed = true;
 
 			Control.Model.ChangedVisibility = changed ? Visibility.Visible : Visibility.Hidden;
 			return changed;
@@ -32,8 +28,8 @@ namespace blekenbleu.SimHub_Remote_menu
 		public void SliderButtton()			// List<GameList> Glist) "SelectedAsSlider" AddAction
 		{
 			slider = View.Selection;
-            if (0 > slider || slider >= simValues.Count)
-                return;
+			if (0 > slider || slider >= simValues.Count)
+				return;
 
 			Control.Model.SliderProperty = HttpServer.SliderProperty = simValues[slider].Name;
 			/* slider View.SL.Maximum = 100; scale property to it, based on Steps[slider]
@@ -80,9 +76,9 @@ namespace blekenbleu.SimHub_Remote_menu
 			return New;
 		}
 
-        // add or update car and per-game default values;
+		// add or update car and per-game default values;
 		// return whether JSON needs to be saved to disk
-        bool SaveSlim()	// called in End(), CarChange()
+		bool SaveSlim()	// called in End(), CarChange()
 		{
 			if (0 == CurrentCar?.Length || 0 == GamePropCount)
 				return false;			// nothing to save

@@ -29,7 +29,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			game = data.gList[gndx];
 
 			Msg = "Current Car: " + cname;
-			if (0 < Gname.Length && SaveSlim())		// do not save first instance
+			if (0 < Gname?.Length && SaveSlim())		// do not save first instance
 				Msg += $";  {CurrentCar} saved";
 			ml = Msg.Length;
 
