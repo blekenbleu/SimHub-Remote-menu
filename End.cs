@@ -13,29 +13,10 @@ namespace blekenbleu.SimHub_Remote_menu
 		public void End(PluginManager pluginManager)
 		{
 			if (0 < Gname.Length && 0 < CurrentCar?.Length && (SaveSlim() || set)) {		// Save settings
-				int i;
-
-				set = true;									// save Current values
-				Settings.properties = new List<Property> {};
-				Settings.game = Gname;
-				Settings.carid = CurrentCar;
-				Settings.gDefaults = new List<Property> {};
-				for(i = 0; i < simValues.Count; i++)
-				{
- 					if (0 < simValues[i].Current?.Length)
-						Settings.properties.Add(new Property()
-						{ Name  = string.Copy(simValues[i].Name),
-						  Value = string.Copy(simValues[i].Current)
-						});
-					if (i >= GamePropCount && 0 < simValues[i].Default?.Length)
-						Settings.gDefaults.Add(new Property()
-						{ Name  = string.Copy(simValues[i].Name),
-				  		  Value = string.Copy(simValues[i].Default)
-						});
-				}
+				SettingsFrom_simValues(Gname, CurrentCar);
 
 				if (write)	// capture per-game Default changes
-					data.gList[gndx].cList[0].Vlist = GameDefaults();	// Json.cs
+					data.gList[gndx].cList[0].vList = GameDefaults();	// Json.cs
 			}
 
 			if (MIDI.Stop() || set)			// .ini mismatches Settings or game run

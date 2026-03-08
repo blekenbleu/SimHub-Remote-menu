@@ -12,12 +12,14 @@ namespace blekenbleu.SimHub_Remote_menu
 			bool changed = false;
 			
 			if (0 > gndx || 0 > cndx)
-				if (!SaveSlim())
-					return changed;
+				return changed;
 
-			for (int p = 0; p < GamePropCount; p++)
-				if (simValues[p].Default != data.gList[gndx].cList[0].Vlist[p]			// per-game default change?
-		 		 || p < CarPropCount && simValues[p].Current != data.gList[gndx].cList[cndx].Vlist[p]) // per-car change?
+			for (int p = 0; p < simValues.Count; p++)
+			
+				if (simValues[p].Default != data.gList[gndx].cList[0].vList[p]							// per-game default
+		 		 || (p < CarPropCount && simValues[p].Current != data.gList[gndx].cList[cndx].vList[p])	// per-car
+				 || (p >= GamePropCount && simValues[p].Default != Settings.gDefaults[p - GamePropCount].Value)	// global
+				)
 				{
 					changed = true;
 					break;
@@ -78,37 +80,12 @@ namespace blekenbleu.SimHub_Remote_menu
 			return New;
 		}
 
-		int GameIndex(string gnew)
-		{
-			if (1 > gnew?.Length)
-				return gndx;										// should be unlikely
-
-			for (int g = 0; g < data.gList.Count; g++)
-				if (gnew == data.gList[g]?.cList[0]?.Name)
-					return gndx = g;
-
-			return gndx;
-		}
-
         // add or update car and per-game default values;
 		// return whether JSON needs to be saved to disk
-        bool SaveSlim()	// called in End(), CarChange() and maybe Changed()
+        bool SaveSlim()	// called in End(), CarChange()
 		{
-			if (null == CurrentCar || 0 == GamePropCount)
+			if (0 == CurrentCar?.Length || 0 == GamePropCount)
 				return false;			// nothing to save
-
-			if (0 > GameIndex(Gname))	// first car for this game?
-			{
-				gndx = data.gList.Count;
-				data.gList.Add(new GameList
-					{ cList = new List<CarL>
-						{ new CarL { Name = Gname,
-									 Vlist = GameDefaults()
-								   }
-						}
-					}
-				);
-			}
 
 			if (0 > (cndx = data.gList[gndx].cList.FindIndex(c => c.Name == CurrentCar)))
 			{	// add car to game
@@ -116,21 +93,21 @@ namespace blekenbleu.SimHub_Remote_menu
 				cndx = data.gList[gndx].cList.Count;
 				data.gList[gndx].cList.Add(new CarL
 					{ Name = CurrentCar,
-					  Vlist = CurrentCarCopy()
+					  vList = CurrentCarCopy()
 					}
 				);
 			} else {								// property value changes?
 				for (int i = 0; i < GamePropCount; i++)
-					if (data.gList[gndx].cList[0].Vlist[i] != simValues[i].Default)
+					if (data.gList[gndx].cList[0].vList[i] != simValues[i].Default)
 					{
-						data.gList[gndx].cList[0].Vlist = GameDefaults();
+						data.gList[gndx].cList[0].vList = GameDefaults();
 						write = true;	// per-game property change
 						break;
 					}
 				for (int i = 0; i < GamePropCount; i++)
-					if (data.gList[gndx].cList[cndx].Vlist[i] != simValues[i].Current)
+					if (data.gList[gndx].cList[cndx].vList[i] != simValues[i].Current)
 					{
-						data.gList[gndx].cList[cndx].Vlist = CurrentCarCopy();
+						data.gList[gndx].cList[cndx].vList = CurrentCarCopy();
 						write = true;	// per-car property change
 						break;
 					}

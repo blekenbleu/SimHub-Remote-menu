@@ -44,6 +44,25 @@ to populate simValues and Steps.
 		- Use the Webmenu UI to e.g. reset moved property default value to that in `Webmenu.ini`
 	- global properties changed to per-game retain default Settings values
 
+## file writing parsimony
+With solid state drives having largely replaced spinning magnetic storage,  
+unnecessary file writing accelerates their wear.  
+Consequently, unless existing Settings and `WebMenu.file` are genuinely defective,  
+those files need not be rewitten unless/until users change some property values  
+from what can be recovered by `Init()` code.  Specifically, any
+- Current property changes provoke writing both Settings (for Previous)  
+   and `WebMenu.file` (for car- and game- specific) values.
+- Global default property changes provoke writing only Settings  
+- two `bool` flags:
+	- `write` for `WebMenu.file` if default or per-car per-game values change  
+	 or `Load()` if `WebMenu.file` failed.
+	- `set` for Settings if global default or any current values change  
+		- for `End()` to compare, `Init()` updates `Settings.gDefaults`
+- Car changes can occur within a game session;&nbsp; consequently,  
+  `CarChange()` must set `write` for per-car or per-game default  
+  or current -per-car value changes
+  from those set in `Plugin data` by `Init()`
+
 ### internals
 - `WebMenu.Init()` uses `Populate()` to list `simValues`   
    with `Default`, `Current` and `Previous` values for configured property names.  

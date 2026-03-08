@@ -7,20 +7,21 @@ namespace blekenbleu.SimHub_Remote_menu
 	/// </summary>
 	public class DataPluginSettings
 	{
+		// global default property values - not stored in .json
+		public List<Property> gDefaults = new List<Property>() {};
+
+		// Init() restores as simValues Previous values
 		public List<Property> properties = new List<Property>()
 		{
 			// each current Value stored as string of integer 10x actual value
-			new Property() {}	// Current per-car, then per-game, then global
+			// most recent per-car, then per-game, then global values saved by `End()`
 		};
 
-		public List<MidiDev> midiDevs = new List<MidiDev>() {};
-
-		// global default property values
-		public List<Property> gDefaults = new List<Property>() {};
-
-		public string game;		// keep these properties if Gname matches
-		public string carid;	// replace per-car properties from JSON, if available and CarId mismatches
 		public int pcount = 0;	// per-car property count in properties
 		public int gcount = 0;	// per-game property count in properties
+		public string game;
+		public string carid;
+
+		public List<MidiDev> midiDevs = new List<MidiDev>() {};
 	}
 }

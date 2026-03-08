@@ -120,7 +120,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		string SetDefault(int i)				// CarChange()
 		{
-			return SetDefault(i, data.gList[gndx].cList[0].Vlist[i]);
+			return SetDefault(i, data.gList[gndx].cList[0].vList[i]);
 		}
 
 		internal void ToSlider()				// Ment(), Swap(), SetSlider(), CarChange()

@@ -8,8 +8,8 @@ namespace blekenbleu.SimHub_Remote_menu
 // !!! These must all be declared public for JsonConvert.SerializeObject() !!!
 	public class CarL
 	{
-		public string Name { get; set; }		// CarID (game name for Carl[0])
-		public List<string> Vlist { get; set; }	// property values	(game defaults for Carl[0])
+		public string Name;				// CarID (game name for Carl[0])
+		public List<string> vList;		// property values	(game defaults for Carl[0])
 	}
 
 	public class GameList																					//	gl
@@ -17,7 +17,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		public List<CarL> cList;		// cList[0] is game Name + default per-car, then per-game property values
 	}
 
-	public class PluginList
+	public class PluginList																					//	data
 	{
 		public string Plugin;			// NCalcScripts/WebMenu.ini identifies itself as "WebMenu.file"
 		public List<string> pList;		// per-car, then per-game, property names, from WebMenu.ini				oldpList
@@ -92,5 +92,29 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			return false;
 		}	// Load()
+
+		void SettingsFrom_simValues(string game, string carid)
+		{
+			Settings.properties = new List<Property> {};
+			Settings.game = game;
+			Settings.carid = carid;
+			Settings.gDefaults = new List<Property> {};
+			Settings.pcount = CarPropCount;
+			Settings.gcount = GamePropCount - CarPropCount;
+
+			for (int i = 0; i < simValues.Count; i++)
+			{
+ 				if (0 < simValues[i].Current?.Length)
+					Settings.properties.Add(new Property()
+					{ Name  = string.Copy(simValues[i].Name),
+					  Value = string.Copy(simValues[i].Current)
+					});
+				if (i >= GamePropCount && 0 < simValues[i].Default?.Length)
+					Settings.gDefaults.Add(new Property()
+					{ Name  = string.Copy(simValues[i].Name),
+			  		  Value = string.Copy(simValues[i].Default)
+					});
+			}
+		}
 	}		// class Slim
 }

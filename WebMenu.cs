@@ -18,14 +18,13 @@ namespace blekenbleu.SimHub_Remote_menu
 		static readonly string My = "WebMenu.";
 		static readonly string Myni = "DataCorePlugin.ExternalScript." + My;
 
-		bool set = false, once = true;
+		bool set = false, once = true, write = false;
 		string CurrentCar;
 		string Gname = "";
 		string path;									// JSON file location
 		int gndx = -1, cndx = -1;						// current car data.gList indices
 		int slider = -1;								// assigned simValues index
 		readonly double[] SliderFactor = new double[] { 0, 0 };
-		bool write = false;								// slim JSON unchanged
 
 		/// <summary>
 		/// Plugin-specific wrapper for SimHub.Logging.Current.Info();
@@ -66,10 +65,9 @@ namespace blekenbleu.SimHub_Remote_menu
         /// <param name="data">Current game data, including current and previous data frames.</param>
         public void DataUpdate(PluginManager pluginManager, ref GameData data)
 		{
-			string cid, gid;
+			string cid = data?.NewData?.CarId, gid = pluginManager?.GameName;
 			
-			if (null != (cid = data?.NewData?.CarId) && cid != CurrentCar
-             && null != (gid = pluginManager?.GameName))
+			if (0 < cid?.Length && cid != CurrentCar && 0 < gid?.Length && 0 < simValues.Count) 
 				CarChange(cid, gid);                // disable popup
 		}
 

@@ -81,12 +81,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions.cs" />
+    <Compile Include="CarChange.cs" />
     <Compile Include="Control.midi.cs" />
     <Compile Include="End.cs" />
     <Compile Include="Init.cs" />
     <Compile Include="Json.cs" />
+    <Compile Include="Parse_ini.cs" />
     <Compile Include="Populate.cs" />
     <Compile Include="strip.cs" />
+    <Compile Include="UpdateSlim.cs" />
     <Compile Include="WebMenu.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Slim.cs" />

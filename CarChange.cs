@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace blekenbleu.SimHub_Remote_menu
 {
     public partial class WebMenu
@@ -7,68 +9,57 @@ namespace blekenbleu.SimHub_Remote_menu
  ;--------------------------------------------------------------- */
 		void CarChange(string cname, string gnew)
 		{
-            int ml = 0;
+            int i, ml = 0;
+			GameList game = null;
 
-			if (0 == simValues.Count)
-				return;
-
-			if (0 < gnew?.Length)	// valid?
+			gndx = data.gList.FindIndex(g => g.cList[0].Name == gnew);
+			if (0 > gndx)
 			{
-				GameList game = null;
-				int i, count = 0, vcount = 0;
-
-
-				Msg = "Current Car: " + cname;
-				if (0 < Gname.Length && SaveSlim())		// do not save first instance
-					Msg += $";  {CurrentCar} saved";
-				ml = Msg.Length;
-
-				for (i = 0; i < simValues.Count; i++)			// copy Current to previous
-					SetPrevious(i, simValues[i].Current);
-
-				// indices for new car
-				if (0 <= GameIndex(gnew))						// sets gndx
+				gndx = data.gList.Count;
+				data.gList.Add(new GameList
 				{
-					game = data.gList[gndx];
-					cndx = game.cList.FindIndex(c => c.Name == cname);
-					vcount = game.cList[0].Vlist.Count;
-					count = GamePropCount > vcount ? vcount : GamePropCount;
-				}
-				else cndx = -1;
-
-				if (0 > cndx && null != game)
-				{
-					NewCar = "true";
-					if (0 <= gndx)
-					{                                   // not a new game
-						if (gnew != Settings.game)
-							i = 0;                      // different game, also set per-car
-						else i = CarPropCount;			// ONLY per-game defaults
-						for (; i < GamePropCount; i++)
-							SetDefault(i);				// perhaps altered since .ini
+					cList = new List<CarL>
+					{ new CarL
+						{ Name = gnew,
+						  vList = GameDefaults()
+						}
 					}
-				}
-				else
-				{													// existing car
-					NewCar = "false";
-					if (cname != Settings.carid && null != game)	// previous car?
-						for (i = 0; i < GamePropCount; i++)
-							SetCurrent(i, game.cList[cndx].Vlist[i]);
-					if (null == CurrentCar && null != game)			// first in this game instance?
-					{												// restore game defaults
-						for (i = 0; i < CarPropCount; i++)
-							SetDefault(i);
-						for(; i < GamePropCount; i++)
-							SetCurrent(i, SetDefault(i, game.cList[0].Vlist[i]));
-					}
-				}
-				Settings.carid = CurrentCar = cname;
-				Changed();
+				});
 			}
+			game = data.gList[gndx];
 
-			if (0 == gnew?.Length)
-				Msg += ", empty CurrentGame Name, ";
-			else Gname = gnew;
+			Msg = "Current Car: " + cname;
+			if (0 < Gname.Length && SaveSlim())		// do not save first instance
+				Msg += $";  {CurrentCar} saved";
+			ml = Msg.Length;
+
+			for (i = 0; i < simValues.Count; i++)	// copy Current to previous
+				SetPrevious(i, simValues[i].Current);
+
+			cndx = game.cList.FindIndex(c => c.Name == cname);
+
+			if (0 > cndx)							// new car?
+			{
+				NewCar = "true";
+				for (i = CarPropCount; i < GamePropCount; i++)
+					SetDefault(i);					// perhaps altered since .ini
+			}
+			else
+			{										// existing car
+				NewCar = "false";
+				if (cname != Settings.carid)		// previous car?
+					for (i = 0; i < CarPropCount; i++)
+						SetCurrent(i, game.cList[cndx].vList[i]);
+				if (null == CurrentCar)				// first in this game instance?
+				{									// restore game defaults
+					for (i = 0; i < CarPropCount; i++)
+						SetDefault(i);
+					for(; i < GamePropCount; i++)
+						SetCurrent(i, SetDefault(i, game.cList[0].vList[i]));
+				}
+			}
+			Settings.carid = CurrentCar = cname;
+			Changed();
 
 			if (ml < Msg.Length)
 			{
@@ -80,6 +71,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				return;
 			}
 			else Msg = "";
+			Gname = gnew;
 			Control.Model.StatusText = Gname + " " + CurrentCar;
 			ToSlider();
 			Control.Model.ButtonVisibility = System.Windows.Visibility.Visible;	// ready
