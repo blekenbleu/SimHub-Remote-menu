@@ -14,7 +14,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		}
 
 		/// <summary>
-		/// Called once at SimHub startup, then at game changes
+		/// Called at SimHub startup, then at game changes
 		/// On exit, simValues, data and Settings reflect properties defined from Myni.* properties,
 		/// obtained by SimHub from e.g. NCalcScripts/WebMenu.ini
 		/// </summary>
@@ -22,26 +22,27 @@ namespace blekenbleu.SimHub_Remote_menu
 		public void Init(PluginManager pluginManager)
 		{
 			List<string> CarProp = new List<string> {}, GameProp = new List<string> {};
+			int Index;
 
 			// forget previous game
 			Gname = CurrentCar = "";			// CarChange() will set
-			once = true;
+			once = true;						// some CarChange() message only once
+			// write = true wants slim-formatted JSON file written in End()
+			set = false;						// true wants Settings saved in End()
 			Steps = new List<int>() {};			// for Populate()
 			simValues = new List<Values>();
 
-			// restore Properties from settings
+			// restore Properties from Settings
 			// https://github.com/blekenbleu/SimHub-Remote-menu/blob/main/Properties.md
 			Settings = this.ReadCommonSettings<DataPluginSettings>(
 												"GeneralSettings", () => new DataPluginSettings());
-			if (0 == Settings?.game.Length && 0 < pluginManager?.GameName.Length)
-				Settings.game = pluginManager.GameName;
-
 			// Load existing slim-formatted JSON file;  Populate() may grab values from it
 			// its values for configured properties are supposed more current than .ini
-			if (set  = Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()))
+			if (write = Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()))
 				OOpa($"Load({path}): " + Msg);
 
-			Parse_ini(pluginManager, ref CarProp, ref GameProp);	// Populate() simValues
+			// Populate() simValues, CarProps, GameProps, iniDefaults
+			Parse_ini(pluginManager, ref CarProp, ref GameProp);
 
 			if (0 == simValues.Count)
 			{
@@ -50,18 +51,29 @@ namespace blekenbleu.SimHub_Remote_menu
 				return;
 			}
 
-			// Recover default global values from Settings or JSON
-			for (int gd = GamePropCount; gd < simValues.Count; gd++)
-			{
-				int Index = Settings.gDefaults.FindIndex(s => s.Name == simValues[gd].Name);
+			if (0 < pluginManager?.GameName.Length)
+				Settings.game = pluginManager.GameName;
+			if (0 < Settings.game?.Length) 				// Relevant game values from JSON
+				gndx = data.gList.FindIndex(g => g.cList[0].Name == pluginManager.GameName);
+			else gndx = -1;
 
-				if (0 <= Index)
-					simValues[gd].Default = Settings.gDefaults[Index].Value;
-				else if ((!set)		// fallback:  perhaps was previously per-car or -game
-					  && 0 <= (Index = data.pList.FindIndex(s => s == simValues[gd].Name))
-					  && 0 <= (gndx = data.gList.FindIndex(g => g.cList[0].Name == Settings.game))
-					  && gndx < data.gList[gndx].cList[0].vList.Count)
-						simValues[gd].Default = data.gList[gndx].cList[0].vList[Index];
+			// Recover simValues from Settings or JSON
+			for (int v = 0; v < simValues.Count; v++)
+			{
+				if (0 <= (Index = Settings.Name.FindIndex(s => s == simValues[v].Name)))
+				{
+					simValues[v].Current = simValues[v].Previous = Settings.Value[Index];
+					if (Index < Settings.defaults.Count)
+						simValues[v].Default = Settings.defaults[Index];
+				}
+				if (0 > gndx || 0 > (Index = data.pList.FindIndex(s => s == simValues[v].Name)))
+					continue;
+				
+				if (Index < data.gList[gndx].cList[0].vList.Count)
+					simValues[v].Default = data.gList[gndx].cList[0].vList[Index];
+
+				if (Index < data.gList[gndx].rList.Count)
+					simValues[v].Current = data.gList[gndx].rList[Index];
 			}
 
 			string sl = pluginManager.GetPropertyValue(Myni + "slider")?.ToString();
@@ -72,18 +84,18 @@ namespace blekenbleu.SimHub_Remote_menu
 				slider = 0;
 
 			// at this point, simValues has all properties from .ini
-			// with Previous and Current values from matching Settings
-			// and Defaults from matching Settings or JSON
+			// updated from matching Settings or JSON
 			bool update = false;
 
-			if (set)												// bad Load()?
+			if (write)												// bad Load()?
 			{
 				data = new PluginList()								// @ slim.cs line 20
 				{
 					Plugin = "WebMenu",
-					gList = new List<GameList>() { },				// @ slim.cs line 15
-					pList = CarProp.Concat(GameProp).ToList()		// per-car, then -game property names
+					pList = new List<string> {},
+					gList = new List<GameList>() {}					// @ slim.cs line 15
                 };
+				update = true;
 			}
 			else if (GamePropCount != data.pList.Count)
 				update = true;
@@ -91,20 +103,26 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (simValues[i].Name != data.pList[i])
 					update = true;
 
-			if (update)
+			for (int i = 0; i < data.gList.Count && !update; i++)
+				if (data.gList[i].rList?.Count != GamePropCount)
+					update = true;
+
+			if (update)												// all GameLists may be out of sync
 			{
 				UpdateSlim();
-				data.pList = CarProp.Concat(GameProp).ToList();
+				data.pList = CarProp.Concat(GameProp).ToList();		// per-car, then -game property names
 			}
 
-			update = Settings.properties?.Count != simValues.Count
-					|| Settings.gDefaults?.Count != simValues.Count - GamePropCount;
-			for (int i = 0; i < Settings.gDefaults?.Count && !update; i++)
-				if (simValues[i + GamePropCount].Name != Settings.gDefaults[i].Name)
+			// now reuse update to sort Settings
+			update = Settings.Name?.Count != simValues.Count
+					|| Settings.defaults?.Count != simValues.Count - GamePropCount;
+			for (int i = 0; i < Settings.defaults?.Count && !update; i++)
+				if (simValues[i + GamePropCount].Name != Settings.defaults[i])
 					update = true;
 			for (int i = 0; i < simValues.Count && !update; i++)
-				if (simValues[i].Name != Settings.properties[i].Name)
+				if (simValues[i].Name != Settings.Name[i])
 					update = true;
+
 			if (update) // recreate Settings from simValues; may not get saved...
 				SettingsFrom_simValues(Settings.game, Settings.carid);
 

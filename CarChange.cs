@@ -15,13 +15,16 @@ namespace blekenbleu.SimHub_Remote_menu
 			gndx = data.gList.FindIndex(g => g.cList[0].Name == gnew);
 			if (0 > gndx)
 			{
+				List<string> dlist = new List<string> {};
+				for (int d = 0; d < GamePropCount; d++)
+					dlist.Add(iniDefaults[d]); 
 				gndx = data.gList.Count;
 				data.gList.Add(new GameList
 				{
 					cList = new List<CarL>
 					{ new CarL
 						{ Name = gnew,
-						  vList = GameDefaults()
+						  vList = dlist
 						}
 					}
 				});
@@ -29,7 +32,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			game = data.gList[gndx];
 
 			Msg = "Current Car: " + cname;
-			if (0 < Gname.Length && SaveSlim())		// do not save first instance
+			if (0 < Gname.Length && UpdateGame())		// do not save first instance
 				Msg += $";  {CurrentCar} saved";
 			ml = Msg.Length;
 

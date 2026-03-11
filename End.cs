@@ -12,15 +12,18 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// <param name="pluginManager"></param>
 		public void End(PluginManager pluginManager)
 		{
-			if (0 < Gname.Length && 0 < CurrentCar?.Length && (SaveSlim() || set)) {		// Save settings
-				SettingsFrom_simValues(Gname, CurrentCar);
-
-				if (write)	// capture per-game Default changes
-					data.gList[gndx].cList[0].vList = GameDefaults();	// Json.cs
-			}
+			if (0 < Gname?.Length && 0 < CurrentCar?.Length && ((UpdateGame()) || set)) 	// Save settings
+				set = set || SettingsFrom_simValues(Gname, CurrentCar);
 
 			if (MIDI.Stop() || set)			// .ini mismatches Settings or game run
-				this.SaveCommonSettings("GeneralSettings", Settings);
+			{
+//				this.SaveCommonSettings("GeneralSettings", Settings);
+				string sjs = Newtonsoft.Json.JsonConvert.SerializeObject(Settings,
+							 Newtonsoft.Json.Formatting.Indented);
+				if (0 == sjs.Length || "{}" == sjs)
+                    OOps("End(Settings):  Json Serializer failure");
+                else System.IO.File.WriteAllText("R:\\Temp\\Settings.json", sjs);
+			}
 
 			if (write && 0 < CurrentCar?.Length)
 			{
@@ -28,7 +31,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				string sjs = Newtonsoft.Json.JsonConvert.SerializeObject(data,
 							 Newtonsoft.Json.Formatting.Indented);
 				if (0 == sjs.Length || "{}" == sjs)
-					OOps("End():  Json Serializer failure");
+					OOps("End(data):  Json Serializer failure");
 				else System.IO.File.WriteAllText("R:\\Temp\\WebMenu.json", sjs);	// path, sjs);
 			}
 		}

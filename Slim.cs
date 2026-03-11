@@ -14,7 +14,9 @@ namespace blekenbleu.SimHub_Remote_menu
 
 	public class GameList																					//	gl
 	{
-		public List<CarL> cList;		// cList[0] is game Name + default per-car, then per-game property values
+		public List<string> rList;		// most recent per-car+game property values for this game
+		public List<CarL> cList;		// cList[0] is game Name + Default per-car+game property values
+										// other cList[] are CarID + current per-car property values
 	}
 
 	public class PluginList																					//	data
@@ -35,7 +37,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			return true;
 		}
 
-		// load Slim .json and reconcile with CurrentCar-specific simValues from NCalcScripts/WebMenu.ini
+		// load Slim .json and reconcile with simValues from NCalcScripts/WebMenu.ini
 		// return true if path fails or unrecoverable JSON
 		// .ini may have added, deleted or moved properties among per-car, per-game and global
 		// .json may be e.g. obsolete format, out-of-date or bad because code bugs.
@@ -51,7 +53,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			// Now, can only return false, meaning some data with which to work
 			string s = "";
-			int nullcarID = 0, nullcList = 0;
+			int nullcarID = 0, nullgList = 0;
 
 			if ("WebMenu" != data?.Plugin) {
 				s += "'{data?.Plugin}' != 'WebMenu'";
@@ -60,14 +62,14 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			for (int i = 0; i < data.gList.Count; i++)					// all games
 			{
-				if (2 > data.gList[i].cList?.Count)
+				if (1 > data.gList[i].cList?.Count || 0 == data.gList[i].cList[0].Name?.Length)
 				{
-					nullcList++;
+					nullgList++;
 					data.gList.RemoveAt(i--);
 					continue;
 				}
 
-				for (int c = 0; c < data.gList[i].cList.Count; c++)	// all cars in game
+				for (int c = 1; c < data.gList[i].cList.Count; c++)	// all cars in game
 					if (0 == data.gList[i].cList[c].Name?.Length)
 					{
 						nullcarID++;
@@ -75,11 +77,11 @@ namespace blekenbleu.SimHub_Remote_menu
 					}
 			}
 
-			if (0 < nullcList)
+			if (0 < nullgList)
 			{
 				if (0 < s.Length)
 					s += "\n\t";
-				s += $"{nullcList} bad car Lists";
+				s += $"{nullgList} bad game Lists";
 			}
 			if (0 < nullcarID)
 			{
@@ -93,28 +95,36 @@ namespace blekenbleu.SimHub_Remote_menu
 			return false;
 		}	// Load()
 
-		void SettingsFrom_simValues(string game, string carid)
+		bool SettingsFrom_simValues(string game, string carid)
 		{
-			Settings.properties = new List<Property> {};
+			bool change = carid != Settings.carid;
+
+			List<string> Name = new List<string> {};
+			List<string> Value = new List<string> {};
+			List<string> defaults = new List<string> {};
 			Settings.game = game;
 			Settings.carid = carid;
-			Settings.gDefaults = new List<Property> {};
 			Settings.pcount = CarPropCount;
 			Settings.gcount = GamePropCount - CarPropCount;
 
 			for (int i = 0; i < simValues.Count; i++)
-			{
  				if (0 < simValues[i].Current?.Length)
-					Settings.properties.Add(new Property()
-					{ Name  = string.Copy(simValues[i].Name),
-					  Value = string.Copy(simValues[i].Current)
-					});
-				if (i >= GamePropCount && 0 < simValues[i].Default?.Length)
-					Settings.gDefaults.Add(new Property()
-					{ Name  = string.Copy(simValues[i].Name),
-			  		  Value = string.Copy(simValues[i].Default)
-					});
+				{
+					if (i >= Settings.Value.Count || i >= Settings.defaults.Count
+					 || Settings.Value[i] != simValues[i].Current
+					 || Settings.defaults[i] != simValues[i].Default)
+						change = true;
+					Name.Add(string.Copy(simValues[i].Name));
+					Value.Add(string.Copy(simValues[i].Current));
+					defaults.Add(string.Copy(simValues[i].Default));
+				}
+			if (change)
+			{
+				Settings.Name = Name;
+				Settings.Value = Value;
+				Settings.defaults = defaults;
 			}
+			return change;
 		}
 	}		// class Slim
 }

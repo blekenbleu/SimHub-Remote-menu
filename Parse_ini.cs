@@ -12,6 +12,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			string vts, vs = pluginManager.GetPropertyValue(vts = Myni + "values")?.ToString();
 			string sts, ss = pluginManager.GetPropertyValue(sts = Myni + "steps")?.ToString();
 
+			iniDefaults = new List<string> {};
 			if ((!(null == ds && OOpa($"per-car properties not found")))
 			 && (!(null == vs && OOpa($"'{vts}' not found")))
 			 && (!(null == ss && OOpa($"'{sts}' not found")))
@@ -68,7 +69,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					OOpa($"{GlobalProps.Count} settings;  {values.Count} setvals;"
 									+ $"  {steps.Count} setsteps");
 				int start = Settings.pcount + Settings.gcount;
-				Populate(GlobalProps, values, steps, start, Settings.properties.Count - start);
+				Populate(GlobalProps, values, steps, start, Settings.Name.Count - start);
 			}
 		}
 	}
