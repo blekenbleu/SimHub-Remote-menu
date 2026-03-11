@@ -42,18 +42,18 @@
 				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
 		<Button x:Name="b3" Content=" - " Height="40" Click="ButEvent"
 				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
-		<Button x:Name="b4" Content="Swap All&#xA;w/Previous" Height="40"
-				Click="ButEvent" Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
-		<Button x:Name="b5" Content="Current&#xA;-&gt;Default" Height="40"
-				Click="ButEvent" Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
+		<Button x:Name="b4" Content="Swap All&#xA;w/Previous" Height="40" Click="ButEvent"
+				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
+		<Button x:Name="b5" Content="Current&#xA;-&gt;Default" Height="40" Click="ButEvent"
+				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
 		</StackPanel>
 
 		<StackPanel Orientation="Horizontal">
 			<Slider Maximum="100" Minimum="0" TickPlacement="BottomRight" TickFrequency="3"
 				Name="SL" Value="{Binding SliderValue}" Width="250" Height="20"
-				PreviewMouseUp="Slider_DragCompleted" Visibility="{Binding SliderVisibility}"/>
+				PreviewMouseUp="Slider_DragCompleted" Visibility="{Binding ButtonVisibility}"/>
 			<Button x:Name="SB" Content="{Binding SliderProperty}" Width="140" Height="22"
-				Click="ButEvent" Visibility="{Binding SliderVisibility}" Background="Green"/>
+				Click="ButEvent" Visibility="{Binding ButtonVisibility}" Background="Green"/>
 		</StackPanel>
 
 		<!-- Control.xaml.cs Control() binds dg to WebMenu.cs List<Values> simValues -->

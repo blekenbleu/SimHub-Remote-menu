@@ -72,7 +72,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (Index < data.gList[gndx].cList[0].vList.Count)
 					simValues[v].Default = data.gList[gndx].cList[0].vList[Index];
 
-				if (Index < data.gList[gndx].rList.Count)
+				if (Index < data.gList[gndx].rList?.Count)
 					simValues[v].Current = data.gList[gndx].rList[Index];
 			}
 

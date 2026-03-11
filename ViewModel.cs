@@ -29,10 +29,9 @@ namespace blekenbleu.SimHub_Remote_menu
 		readonly PropertyChangedEventArgs Bevent = new PropertyChangedEventArgs("ButtonVisibility");
 		readonly PropertyChangedEventArgs Cevent = new PropertyChangedEventArgs("ChangedVisibility");
 		readonly PropertyChangedEventArgs Fevent = new PropertyChangedEventArgs("Forget");
-		readonly PropertyChangedEventArgs Nevent = new PropertyChangedEventArgs("SliderProperty");
 		readonly PropertyChangedEventArgs Sevent = new PropertyChangedEventArgs("SelectedProperty");
-		readonly PropertyChangedEventArgs SVevent = new PropertyChangedEventArgs("SliderVisibility");
-		readonly PropertyChangedEventArgs SLevent = new PropertyChangedEventArgs("SliderValue");
+		readonly PropertyChangedEventArgs SPevent = new PropertyChangedEventArgs("SliderProperty");
+		readonly PropertyChangedEventArgs SVevent = new PropertyChangedEventArgs("SliderValue");
 		readonly PropertyChangedEventArgs Tevent = new PropertyChangedEventArgs("Text");
 
 
@@ -87,22 +86,8 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (_sval != value)
 				{
 					_sval = value;
-					PropertyChanged?.Invoke(this, SLevent);
-					HttpServer.SSEslide(SliderValue, SliderProperty);
-				}
-			}
-		}
-
-		private Visibility _svis = Visibility.Hidden;
-		public Visibility SliderVisibility		// must be public for XAML Binding
-		{
-			get { return _svis; }
-			set
-			{
-				if (_svis != value)
-				{
-					_svis = value;
 					PropertyChanged?.Invoke(this, SVevent);
+					HttpServer.SSEslide(SliderValue, SliderProperty);
 				}
 			}
 		}
@@ -149,7 +134,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (value != _slider_Property)
 				{
 					_slider_Property = value;
-					PropertyChanged?.Invoke(this, Nevent);
+					PropertyChanged?.Invoke(this, SPevent);
 					SliderVisibility = Visibility.Visible;
 					HttpServer.SSEslide(SliderValue, SliderProperty);
 				}

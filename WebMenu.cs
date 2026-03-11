@@ -89,15 +89,13 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			HttpServer.Start(View = new Control(this));		// invoked *after* Init()
 			SliderButtton();								// depends on View instance
-
 			if (0 < Msg.Length) 							// pop-up for Init() issues
 			{
 				Info("Init():  " + Msg);
-				Msg += "\n" + ViewModel.staticText;
-				Control.Model.StatusText = Msg;
 				System.Windows.Forms.MessageBox.Show(Msg, "WebMenu.Init()");
-				Msg = "";
-			}
+			} else Msg = $"{Settings.game} {Settings.carid}";
+			Control.Model.StatusText = Msg + "\n" + ViewModel.staticText;
+			Msg = "";
 			return View;
 		}
 	}		// class WebMenu
