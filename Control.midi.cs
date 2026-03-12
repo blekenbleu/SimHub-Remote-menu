@@ -34,7 +34,8 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		internal static bool Stop()
 		{
-			if (changed)	// convert click List to midiDevs
+//			changed = OK.Settings.midiDevs.Count != click.Count || changed;
+            if (changed)	// convert click List to midiDevs
 				OK.Settings.midiDevs = click.Select(md => new MidiDev
 				{
 					butName = md.Value,

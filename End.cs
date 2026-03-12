@@ -16,12 +16,14 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			if (MIDI.Stop() || set)			// .ini mismatches Settings or game run
 			{
-//				this.SaveCommonSettings("GeneralSettings", Settings);
+				this.SaveCommonSettings("GeneralSettings", Settings);
+/*
 				string sjs = Newtonsoft.Json.JsonConvert.SerializeObject(Settings,
 							 Newtonsoft.Json.Formatting.Indented);
 				if (0 == sjs.Length || "{}" == sjs)
                     OOps("End(Settings):  Json Serializer failure");
                 else System.IO.File.WriteAllText("R:\\Temp\\Settings.json", sjs);
+ */
 			}
 
 			if (write && 0 < CurrentCar?.Length)
@@ -31,7 +33,8 @@ namespace blekenbleu.SimHub_Remote_menu
 							 Newtonsoft.Json.Formatting.Indented);
 				if (0 == sjs.Length || "{}" == sjs)
 					OOps("End(data):  Json Serializer failure");
-				else System.IO.File.WriteAllText("R:\\Temp\\WebMenu.json", sjs);	// path, sjs);
+//				else System.IO.File.WriteAllText("R:\\Temp\\WebMenu.json", sjs);
+				else System.IO.File.WriteAllText(path, sjs);
 			}
 		}
 	}
