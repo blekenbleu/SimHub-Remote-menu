@@ -1,23 +1,24 @@
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
 	public partial class Control
 	{
-		SemaphoreSlim semaphore = new SemaphoreSlim(1);		// Only 1 task at a time
+		readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);		// Only 1 PayloadHandler() at a time
 
 		// WPF events by name;  MIDI events by payload
-		internal async Task EventHandler(string name, int payload)
+		internal async Task SemaphoreQueue(string name, int payload)
 		{
 			await semaphore.WaitAsync();
 			try
 			{
-				await Task.Run(() => PayloadHandler(name, payload));
+				PayloadHandler(name, payload);
 			}
 			catch
 			{
-                System.Windows.Forms.MessageBox.Show($"Remote-menu.EventHandler({name}, {payload})", "Exception");
+				System.Windows.Forms.MessageBox.Show($"WebMenu.SemaphoreQueue({name}, {payload})", "Exception");
 			}
 			finally
 			{
@@ -28,14 +29,14 @@ namespace blekenbleu.SimHub_Remote_menu
 		void PayloadHandler(string name, int payload)
 		{
 			if ("MIDI" == name)
-				ProcessMIDI(payload);
+				ProcessMIDI(payload);		// Control.midi.cs
 			else if (-1 == payload)			// WPF RoutedEvent
 			{
 				if ("bm" == name)			// [MIDI learn] button
 					NotEarn();
 				else if (Earn)				// learning events
 					Learn(name);
-				else ClickHandle(name);		// "live" events
+				else ClickHandle(name);		// Control.xaml.cs "live" events
 			}
 			else if (Earn)					// System.Windows.Input.Mouse event
 			{								// learn slider map
@@ -51,13 +52,13 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			string butName = (e.OriginalSource as FrameworkElement).Name;
 
-			await EventHandler(butName, -1);
+			await SemaphoreQueue(butName, -1);
 		}
 
 		// handle slider changes
 		private async void Slider_DragCompleted(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
-			await EventHandler("SL", (int)(0.5 + 10 * SL.Value));
+			await SemaphoreQueue("SL", (int)(0.5 + 10 * SL.Value));
 		}
 	}
 }

@@ -14,7 +14,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		internal static void SSEslide(double v, string p) {}
 		internal static void Start(Control v) {}
 	}
- */
+
 	public class MidiDev			// must be public for Settings.cs
 	{
 		public string devName, butName;
@@ -30,6 +30,11 @@ namespace blekenbleu.SimHub_Remote_menu
 
 	public partial class Control
     {
+		private void Slider_DragCompleted(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+			OK.FromSlider(0.5 + SL.Value);
+		}
+
 		internal void ButEvent(object sender, RoutedEventArgs e)
 		{
 			string name = (e.OriginalSource as FrameworkElement).Name;
@@ -38,10 +43,6 @@ namespace blekenbleu.SimHub_Remote_menu
 				Model.MidiStatus = "\nMIDI learn disabled";
 			else ClickHandle(name);
 		}
-
-		private void Slider_DragCompleted(object sender, System.Windows.Input.MouseButtonEventArgs e)
-		{
-			OK.FromSlider(0.5 + SL.Value);
-		}
 	}
+ */
 }

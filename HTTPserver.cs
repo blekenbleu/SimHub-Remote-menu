@@ -10,8 +10,8 @@ namespace blekenbleu.SimHub_Remote_menu
 	{
 		static Control View;
 
-        // adapted from https://github.com/blekenbleu/TcpMultiClient
-        internal static void Start(Control v)
+		// adapted from https://github.com/blekenbleu/TcpMultiClient
+		internal static void Start(Control v)
 		{
 			if (null == View)	// continue running over game changes
 				Task.Run(() => HttpServer.OpenAsync());

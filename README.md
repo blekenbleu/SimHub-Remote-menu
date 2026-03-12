@@ -47,14 +47,15 @@ HTML table updates should have lower processing overhead than graphical overlay.
 	- *replaced* TCPserver.cs content with [TcpMultiClient](https://github.com/blekenbleu/TcpMultiClient) `Program.cs` Main() + MultiClientTcpServer()
 	- *replaced* [HTTPserver](https://github.com/blekenbleu/HttpServer) content with `IsHttp()` and `ClientTask()`
 - current HTML scroll and slider set with car changes, not waiting for WPF menu open
-- [multiple MIDI input device support](Channel.md) *with learning* for `<table>` changes
-- *to do*:&nbsp; maintain client web sessions across game changes
+- [multiple MIDI input device support](SemaphoreSlim.md) *with learning* to make `<table>` property value changes
+- maintain client web sessions across game changes, when SimHub does not exit.
+- *to do*:&nbsp; gracefully resume MIDI
 
 ## bug
 - `Expression error:The type initializer for 'Jint.Native.Global.GlobalObject' threw an exception.`
 	- any Javascript ShakeIt Custom Effect formula returns this until SimHub is reinstalled.
 	- loading a new build of this plugin provokes it again...?
-	- `TcpServer.cs static JavaScriptSerializer js;` perhaps provokes this?
+	- `JavaScript` name collision perhaps provoked this?&nbsp; but *different namespace*
 ### new-to-me tricks  
 - handle all button events in one method by [`(e.OriginalSource as FrameworkElement).Name`](https://stackoverflow.com/a/26938950)
 - [NAudio `MidiIn.NumberOfDevices`, `MidiIn(deviceNumber)`](https://github.com/naudio/NAudio/blob/master/NAudioDemo/MidiInDemo/MidiInPanel.cs#L24)

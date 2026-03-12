@@ -39,27 +39,21 @@
       <HintPath>$(SIMHUB_INSTALL_PATH)GameReaderCommon.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="InputManagerCS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SIMHUB_INSTALL_PATH)InputManagerCS.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="log4net">
       <HintPath>$(SIMHUB_INSTALL_PATH)log4net.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="NAudio.Midi, Version=2.2.1.0, Culture=neutral, PublicKeyToken=e279aa5131008a41, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SIMHUB_INSTALL_PATH)MahApps.Metro.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>$(SIMHUB_INSTALL_PATH)NAudio.Midi.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json">
       <HintPath>$(SIMHUB_INSTALL_PATH)Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="SimHub.Logging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="SimHub.Logging">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(SIMHUB_INSTALL_PATH)SimHub.Logging.dll</HintPath>
       <Private>False</Private>
@@ -89,11 +83,12 @@
     <Compile Include="HTTPserver.cs" />
     <Compile Include="Init.cs" />
     <Compile Include="Json.cs" />
+    <Compile Include="MIDI.cs" />
     <Compile Include="Parse_ini.cs" />
     <Compile Include="Populate.cs" />
+    <Compile Include="SemaphoreSlim.cs" />
     <Compile Include="SSEhandler.cs" />
     <Compile Include="SSEvents.cs" />
-    <Compile Include="strip.cs" />
     <Compile Include="TcpServer.cs" />
     <Compile Include="UpdateSlim.cs" />
     <Compile Include="WebMenu.cs" />

@@ -5,19 +5,18 @@ using NAudio.Midi;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
-	public class MidiDev			// must be public for Settings.cs
+	public class MidiDev		// must be public for Settings.cs
 	{
 		public string devName, butName;
 		public int devMessage;	// {4-bit dev = 1-bit button | 3-bit lMidiIn index} | data2 | data 1 | status
 	}
 
-	internal class Device			// NAudio MidiIn lacks device name
+	internal class Device		// NAudio MidiIn lacks device name
 	{
 		internal string id;
-		internal MidiIn m;
+		internal MidiIn m;		// https://github.com/naudio/NAudio/blob/master/Docs/MidiInAndOut.md
 	}
 
-	// https://github.com/naudio/NAudio/blob/master/Docs/MidiInAndOut.md
 	// https://deepwiki.com/naudio/NAudio/7-midi-support#midi-io-operations
 	partial class MIDI
 	{
@@ -145,17 +144,17 @@ namespace blekenbleu.SimHub_Remote_menu
 		// e.MidiEvent = FromRawMessage(e.RawMessage);
 		static async void MidiIn0(object sender, MidiInMessageEventArgs e)
 		{
-			await View.EventHandler("MIDI", e.RawMessage);
+			await View.SemaphoreQueue("MIDI", e.RawMessage);
 		}
 
 		static async void MidiIn1(object sender, MidiInMessageEventArgs e)
 		{
-			await View.EventHandler("MIDI", e.RawMessage | (1 << 24));
+			await View.SemaphoreQueue("MIDI", e.RawMessage | (1 << 24));
 		}
 
 		static async void MidiIn2(object sender, MidiInMessageEventArgs e)
 		{
-			await View.EventHandler("MIDI", e.RawMessage | (2 << 24));
+			await View.SemaphoreQueue("MIDI", e.RawMessage | (2 << 24));
 		}
 
 		static void MidiIn_ErrorReceived(object sender, MidiInMessageEventArgs e)

@@ -135,7 +135,6 @@ namespace blekenbleu.SimHub_Remote_menu
 				{
 					_slider_Property = value;
 					PropertyChanged?.Invoke(this, SPevent);
-					SliderVisibility = Visibility.Visible;
 					HttpServer.SSEslide(SliderValue, SliderProperty);
 				}
 			}
