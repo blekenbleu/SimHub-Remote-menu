@@ -36,7 +36,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					NotEarn();
 				else if (Earn)				// learning events
 					Learn(name);
-				else ClickHandle(name);		// Control.xaml.cs "live" events
+				else OK.ClickHandle(name);	// Control.xaml.cs "live" events
 			}
 			else if (Earn)					// System.Windows.Input.Mouse event
 			{								// learn slider map

@@ -154,5 +154,38 @@ namespace blekenbleu.SimHub_Remote_menu
 			Changed();
 			Control.Model.SliderProperty =  simValues[slider].Name + ":  " + simValues[slider].Current;
 		}
+
+		internal void ClickHandle(string butName)	// used by ButEvent(), Process(MidiMessage)
+		{
+			Control.Model.MidiStatus = " ";
+			switch(butName)
+			{
+				case "b0":
+					Select(false);
+					break;
+				case "b1":
+					Select(true);
+					break;
+				case "b2":
+					Ment(1);
+					break;
+				case "b3":
+					Ment(-1);
+					break;
+				case "b4":
+					Swap();
+					break;
+				case "b5":
+					SetDefault();
+					break;
+				case "SB":
+					SliderButtton();
+					break;
+				default:
+                    Msg = "ClickHandle(): unconfigured click '{butName)'";
+					OOpsMB();	// tested 1 Mar 2026
+					break;
+			}
+		}
 	}
 }

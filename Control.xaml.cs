@@ -17,7 +17,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		static WebMenu OK;
 		internal static ViewModel Model;			// reference XAML controls
 		internal byte Selection;					// changes only in WebMenu.Select() on UI thread
-		internal static string version = "1.84";
+		internal static string version = "1.85";
 
 		public Control() {							// called before simValues are initialized
 			Model = new ViewModel(this);
@@ -30,8 +30,8 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			OK = plugin;							// Control.xaml button events call WebMenu methods
 			dg.ItemsSource = WebMenu.simValues;	// bind XAML DataGrid
-			if (0 < WebMenu.Settings.midiDevs.Count)
-				MIDI.Resume(Model, this);
+			if (0 < OK.Settings.midiDevs.Count)
+				MIDI.Resume(Model, this, OK);
 		}
 
 		private void Hyperlink_RequestNavigate(object sender,
@@ -57,39 +57,6 @@ namespace blekenbleu.SimHub_Remote_menu
 		private void DgSelect(object sender, RoutedEventArgs e)
 		{
 			Selected();
-		}
-
-		internal static void ClickHandle(string butName)	// used by ButEvent(), Process(MidiMessage)
-		{
-			Model.MidiStatus = " ";
-			switch(butName)
-			{
-				case "b0":
-					OK.Select(false);
-					break;
-				case "b1":
-					OK.Select(true);
-					break;
-				case "b2":
-					OK.Ment(1);
-					break;
-				case "b3":
-					OK.Ment(-1);
-					break;
-				case "b4":
-					OK.Swap();
-					break;
-				case "b5":
-					OK.SetDefault();
-					break;
-				case "SB":
-					OK.SliderButtton();
-					break;
-				default:
-                    WebMenu.Msg = "ClickHandle(): unconfigured click '{butName)'";
-					OK.OOpsMB();	// tested 1 Mar 2026
-					break;
-			}
 		}
 	}
 }

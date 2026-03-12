@@ -9,8 +9,8 @@ namespace blekenbleu.SimHub_Remote_menu
 	[PluginName("WebMenu")]
 	public partial class WebMenu : IPlugin, IDataPlugin, IWPFSettingsV2
 	{
-		public static DataPluginSettings Settings;
-		public string NewCar = "false";
+		public DataPluginSettings Settings;
+        public string NewCar = "false";
 
 		internal static string Msg = "";
 

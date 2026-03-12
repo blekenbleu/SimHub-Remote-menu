@@ -46,38 +46,38 @@ namespace blekenbleu.SimHub_Remote_menu
 		// populate Control.midi.cs SortedList click from Settings.cs midiDevs
 		// Update MidiDev devMessage 3-bit lMidiIn indices to (j)
 		// for devName matching MidiIn.DeviceInfo(j).ProductName
-		internal static void Resume(ViewModel m, Control c)
+		internal static void Resume(ViewModel m, Control c, WebMenu w)
 		{
 			Control.click.Clear();
-			for (int i = 0; i < WebMenu.Settings.midiDevs.Count; i++)
+			for (int i = 0; i < w.Settings.midiDevs.Count; i++)
 			{
 				for (int j = 0; j < MidiIn.NumberOfDevices; j++)
 				{
-					if (WebMenu.Settings.midiDevs[i].devName == MidiIn.DeviceInfo(j).ProductName)
+					if (w.Settings.midiDevs[i].devName == MidiIn.DeviceInfo(j).ProductName)
 					{
-						int recent = WebMenu.Settings.midiDevs[i].devMessage;
+						int recent = w.Settings.midiDevs[i].devMessage;
 						int mDev = j << 24;		// updated 3-bit lMidiIn index
 						int dev = recent;
 
 						dev &= 0x07000000;				// breaks if 7 < NumberOfDevices
 						recent &= 0xFFFF;
 						recent |= mDev;
-						Control.Add(recent, WebMenu.Settings.midiDevs[i].butName);
-						for (int k = 1 + i; k < WebMenu.Settings.midiDevs.Count; k++)
+						Control.Add(recent, w.Settings.midiDevs[i].butName);
+						for (int k = 1 + i; k < w.Settings.midiDevs.Count; k++)
 						{
-							if (WebMenu.Settings.midiDevs[k].devMessage == WebMenu.Settings.midiDevs[i].devMessage)
+							if (w.Settings.midiDevs[k].devMessage == w.Settings.midiDevs[i].devMessage)
 							{
 								i = k;
 								continue;	// ignore duplicate midiDevs
 							}
-							// likely multiple WebMenu.Settings.midiDevs per dev
-							recent = WebMenu.Settings.midiDevs[k].devMessage;
+							// likely multiple w.Settings.midiDevs per dev
+							recent = w.Settings.midiDevs[k].devMessage;
 							if (dev == (0x07000000 & recent))
 							{
 								i = k;
 								recent &= 0xFFFF;
 								recent |= mDev;
-								Control.Add(recent, WebMenu.Settings.midiDevs[i].butName);
+								Control.Add(recent, w.Settings.midiDevs[i].butName);
 							}
 							else break;
 						}

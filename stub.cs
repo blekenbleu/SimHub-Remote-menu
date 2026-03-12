@@ -41,7 +41,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			if ("bm" == name)           // [MIDI learn] button
 				Model.MidiStatus = "\nMIDI learn disabled";
-			else ClickHandle(name);
+			else OK.ClickHandle(name);
 		}
 	}
  */

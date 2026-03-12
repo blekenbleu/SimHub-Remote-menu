@@ -34,32 +34,15 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		internal static bool Stop()
 		{
-			if (changed)
-			{
-/*				WebMenu.Settings.midiDevs = new List<MidiDev>() {};
-				for (int j = 0; j < click.Count; j++)
-				{
-					int key = click.Keys[j];
-					int i = 0x07000000 & key;
-					i >>= 24;
-					WebMenu.Settings.midiDevs.Add(new MidiDev()
-					{
-						butName = click.Values[j],
-						devName = NAudio.Midi.MidiIn.DeviceInfo(i).ProductName,
-						devMessage = key
-					});
-				}
- */
-				WebMenu.Settings.midiDevs = click.Select(md => new MidiDev
+			if (changed)	// convert click List to midiDevs
+				OK.Settings.midiDevs = click.Select(md => new MidiDev
 				{
 					butName = md.Value,
 					devMessage = md.Key,
 					devName = MidiIn.DeviceInfo((0x07000000 & md.Key) >> 24).ProductName
 				}).ToList();
-			}
 			return changed;
 		}
-		
 
 		void ListClick(string bName)	// checks for slider or buttons
 		{
@@ -176,7 +159,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					OK.ToSlider();							// update WPF slider position
 				}
 				else if (0xB0 != (0x7F00F0 & MidiMessage))	// ignore CC button 0 values
-					ClickHandle(click[latest]);
+					OK.ClickHandle(click[latest]);
 			}
 			else Model.MidiStatus = $"\nMIDI({latest:X8}) not learned";
 			busy = false;
