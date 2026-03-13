@@ -14,8 +14,9 @@ namespace blekenbleu.SimHub_Remote_menu
 		internal static SortedList<int, string> click = new SortedList<int, string>() {};
 		static int recent, forget;					// MidiDev messages with data2 masked out
 		internal static bool busy;
-		static bool button, changed, _learn = false;			// state variables
-		static string again = " ";
+		static bool button, _learn = false;            // state variables
+        internal static bool changed;
+        static string again = " ";
 
 		static bool Earn
 		{
@@ -30,19 +31,6 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			click.Add(recent, bName);
 			changed = true;
-		}
-
-		internal static bool Stop()
-		{
-//			changed = OK.Settings.midiDevs.Count != click.Count || changed;
-            if (changed)	// convert click List to midiDevs
-				OK.Settings.midiDevs = click.Select(md => new MidiDev
-				{
-					butName = md.Value,
-					devMessage = md.Key,
-					devName = MidiIn.DeviceInfo((0x07000000 & md.Key) >> 24).ProductName
-				}).ToList();
-			return changed;
 		}
 
 		void ListClick(string bName)	// checks for slider or buttons

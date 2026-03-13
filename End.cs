@@ -14,7 +14,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			if (0 < Gname?.Length && 0 < CurrentCar?.Length && ((UpdateGame()) || set)) 	// Save settings
 				set = set || SettingsFrom_simValues(Gname, CurrentCar);
 
-			if (MIDI.Stop() || set)			// .ini mismatches Settings or game run
+			if (MIDI.Stop(this) || set)			// .ini mismatches Settings or game run
 			{
 				this.SaveCommonSettings("GeneralSettings", Settings);
 /*

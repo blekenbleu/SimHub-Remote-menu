@@ -18,11 +18,11 @@ SimHub **Controls and events** handles **Controllers** joystick button, but not 
 
 #### MIDI Init
 Available devices may change at any time;  
-- always check `MidiIn.DeviceInfo`;
-	- extract candidate list
-- sort `Settings.midiDevs` into `lMidiIn` and `inactive`
+- check `MidiIn.DeviceInfo` on every `Init()`;
+	- extract `available` and `used` ProductName Lists
+- sort `Settings.midiDevs` into `lMidiIn` and `unused`
 
 #### MISI Stop
 if changed,
 - convert `lMidiIn` back to `Settings.midiDevs`
-	- then append `inactive` to `Settings.midiDevs`
+	- then Concat `unused` to `Settings.midiDevs`

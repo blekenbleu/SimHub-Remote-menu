@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using NAudio.Midi;
 
@@ -31,6 +32,9 @@ namespace blekenbleu.SimHub_Remote_menu
 		static ViewModel Model;
 		static Control View;
 		static string status;
+		static List<string> available, used;
+		static List<MidiDev> unused;        // Settings.midiDevs for devName currently unavailable
+		static List<int> devIndex;
 
 		internal static bool Start(ViewModel m, Control c)
 		{
@@ -52,39 +56,23 @@ namespace blekenbleu.SimHub_Remote_menu
 			Control.click.Clear();
 			for (int i = 0; i < w.Settings.midiDevs.Count; i++)
 			{
-				for (int j = 0; j < MidiIn.NumberOfDevices; j++)
-				{
-					if (w.Settings.midiDevs[i].devName == MidiIn.DeviceInfo(j).ProductName)
-					{
-						int recent = w.Settings.midiDevs[i].devMessage;
-						int mDev = j << 24;		// updated 3-bit lMidiIn index
-						int dev = recent;
+				int j;
 
-						dev &= 0x07000000;				// breaks if 7 < NumberOfDevices
-						recent &= 0xFFFF;
-						recent |= mDev;
-						Control.Add(recent, w.Settings.midiDevs[i].butName);
-						for (int k = 1 + i; k < w.Settings.midiDevs.Count; k++)
-						{
-							if (w.Settings.midiDevs[k].devMessage == w.Settings.midiDevs[i].devMessage)
-							{
-								i = k;
-								continue;	// ignore duplicate midiDevs
-							}
-							// likely multiple w.Settings.midiDevs per dev
-							recent = w.Settings.midiDevs[k].devMessage;
-							if (dev == (0x07000000 & recent))
-							{
-								i = k;
-								recent &= 0xFFFF;
-								recent |= mDev;
-								Control.Add(recent, w.Settings.midiDevs[i].butName);
-							}
-							else break;
-						}
-						break;
-					}
+				if (0 > (j = available.FindIndex(s => s == w.Settings.midiDevs[i].devName)))
+				{
+					unused.Add(w.Settings.midiDevs[i]);
+					continue;
 				}
+
+				int mDev = devIndex[j] << 24;		// current 3-bit lMidiIn index
+				int recent = mDev | (0xFFFF & w.Settings.midiDevs[i].devMessage);
+
+				if (!used.Contains(w.Settings.midiDevs[i].devName))
+					used.Add(w.Settings.midiDevs[i].devName);
+				else if (Control.click.ContainsKey(recent))
+					continue;						// avoid duplicate devMessages
+
+				Control.click.Add(recent, w.Settings.midiDevs[i].butName);
 			}
 //			WebMenu.Info($"Resume():  {Control.click.Count} configured clicks");
 			Start(m, c);
@@ -101,15 +89,26 @@ namespace blekenbleu.SimHub_Remote_menu
 			lMidiIn.RemoveAt(i);
 		}
 
-		internal static bool Stop()			// called by WebMenu.cs End()
+		internal static bool Stop(WebMenu wm)			// called by WebMenu.cs End()
 		{
-			if (null != lMidiIn)
+			if (0 < lMidiIn?.Count)
 				for (int j = lMidiIn.Count -1 ; j >= 0; j--)
 					Stop(j);
 			lMidiIn = null;
-			return Control.Stop();
-		}
 
+            if (Control.changed)	// convert click List to midiDevs
+			{
+				wm.Settings.midiDevs = Control.click.Select(md => new MidiDev
+				{
+					butName = md.Value,
+					devName = MidiIn.DeviceInfo((0x07000000 & md.Key) >> 24).ProductName,
+					devMessage = md.Key & 0xFFFF
+				}).ToList();
+				if (0 < unused.Count)
+					wm.Settings.midiDevs.Concat(unused);
+			}
+			return Control.changed;
+		}
 		static bool InputMidiSetup(int deviceNumber, string ProductName)	// called by InputMidiDevices
 		{
 			int j = lMidiIn.Count;
@@ -143,6 +142,8 @@ namespace blekenbleu.SimHub_Remote_menu
 				else {
 					bool a = InputMidiSetup(i, input);
 
+					available.Add(input);
+					devIndex.Add(i);
 					s.Append(a ? " handled" : " ignored");
 					if (a) {
 						if (b)
@@ -180,6 +181,10 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		internal static string Init()
 		{
+			available = new List<string> {};
+			used = new List<string> {};
+			unused = new List<MidiDev> {};
+			devIndex = new List<int> {};
 			return "\t" + InputMidiDevices();
 		}
 	}
