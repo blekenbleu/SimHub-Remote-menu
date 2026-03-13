@@ -128,7 +128,9 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		static string InputMidiDevices()		// called by Start()
 		{
-			StringBuilder s = new StringBuilder($"\nNAudio MidiIn device count {MidiIn.NumberOfDevices}");
+			StringBuilder s = new StringBuilder($"\nNAudio MidiIn device count {MidiIn.NumberOfDevices}"),
+			t = new StringBuilder("\nNAudio MidiIn device:  ");
+			bool b = false;
 
 			lMidiIn = new List<Device> {};
 			for (int i = 0; i < MidiIn.NumberOfDevices; i++)
@@ -138,9 +140,20 @@ namespace blekenbleu.SimHub_Remote_menu
 				s.Append("\n\t").Append(input);
 				if (input.StartsWith("loopMIDI") || input.StartsWith("AudioBox"))
 					s.Append(" ignored");
-				else s.Append(InputMidiSetup(i, input) ? " handled" : " failed");
+				else {
+					bool a = InputMidiSetup(i, input);
+
+					s.Append(a ? " handled" : " ignored");
+					if (a) {
+						if (b)
+							t.Append(",\n\t");
+						t.Append(input);
+						b = true;
+					}
+				}
 			}
-			return status = s.ToString();
+			status = t.ToString();
+			return s.ToString();
 		}
 
 		// e.MidiEvent = FromRawMessage(e.RawMessage);
