@@ -15,3 +15,14 @@ SimHub **Controls and events** handles **Controllers** joystick button, but not 
 	- keep all ProductName in click list
 		- preserve learnings for ProductNames currently unavailable
 - click list edit screen - replacing `dg` DataGrid for review / deletions
+
+#### MIDI Init
+Available devices may change at any time;  
+- always check `MidiIn.DeviceInfo`;
+	- extract candidate list
+- sort `Settings.midiDevs` into `lMidiIn` and `inactive`
+
+#### MISI Stop
+if changed,
+- convert `lMidiIn` back to `Settings.midiDevs`
+	- then append `inactive` to `Settings.midiDevs`

@@ -8,7 +8,7 @@ namespace blekenbleu.SimHub_Remote_menu
 	public class MidiDev		// must be public for Settings.cs
 	{
 		public string devName, butName;
-		public int devMessage;	// {4-bit dev = 1-bit button | 3-bit lMidiIn index} | data2 | data 1 | status
+		public int devMessage;	// (3-bit lMidiIn index) | data2 | data 1 | status
 	}
 
 	internal class Device		// NAudio MidiIn lacks device name
@@ -30,15 +30,16 @@ namespace blekenbleu.SimHub_Remote_menu
 			= new EventHandler<MidiInMessageEventArgs>[3] { MidiIn0, MidiIn1, MidiIn2 };
 		static ViewModel Model;
 		static Control View;
+		static string status;
 
 		internal static bool Start(ViewModel m, Control c)
 		{
 			Model = m;
 			View = c;
-			if (null == lMidiIn)
+			if (0 < status.Length)
 			{
-				lMidiIn = new List<Device> { };
-				InputMidiDevices();
+				Model.MidiStatus = status;
+				status = "";
 			}
 			return true;
 		}
@@ -125,10 +126,11 @@ namespace blekenbleu.SimHub_Remote_menu
 			return ok;
 		}
 
-		static void InputMidiDevices()		// called by Start()
+		static string InputMidiDevices()		// called by Start()
 		{
 			StringBuilder s = new StringBuilder($"\nNAudio MidiIn device count {MidiIn.NumberOfDevices}");
 
+			lMidiIn = new List<Device> {};
 			for (int i = 0; i < MidiIn.NumberOfDevices; i++)
 			{
 				string input = MidiIn.DeviceInfo(i).ProductName;
@@ -138,7 +140,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					s.Append(" ignored");
 				else s.Append(InputMidiSetup(i, input) ? " handled" : " failed");
 			}
-			Model.MidiStatus = s.ToString();
+			return status = s.ToString();
 		}
 
 		// e.MidiEvent = FromRawMessage(e.RawMessage);
@@ -161,6 +163,11 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			WebMenu.Info(String.Format("MidiIn_ErrorReceived():  Message 0x{0:X8} Event {1}",
 				e.RawMessage, e.MidiEvent));
+		}
+
+		internal static string Init()
+		{
+			return "\t" + InputMidiDevices();
 		}
 	}
 }

@@ -137,7 +137,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			this.AttachDelegate("Car",	 () => CurrentCar);
 			this.AttachDelegate("Msg",	() => Msg);
 			Actions();
-			Info($"Init():  simValues.Count = {simValues.Count}");
+			Info($"Init():  simValues.Count = {simValues.Count}" + MIDI.Init() + HttpServer.Init());
 		}	// Init()
 	}		// class WebMenu
 }
