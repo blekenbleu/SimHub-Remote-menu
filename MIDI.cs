@@ -35,6 +35,29 @@ namespace blekenbleu.SimHub_Remote_menu
 		static List<string> available, used;
 		static List<MidiDev> unused;        // Settings.midiDevs for devName currently unavailable
 		static List<int> devIndex;
+		static readonly SortedList<string, string> buttonList = new SortedList<string, string>
+		{
+			{ "b0", "Scroll Up" },
+			{ "b1", "Down" },
+			{ "b2", "Increment" },
+			{ "b3", "Decrement" },
+			{ "b4", "Swap" },
+			{ "b5", "Default" },
+			{ "SB", "Set Slider" },
+			{ "SL", "Slider" },
+			{ "bf", "Forget" },
+			{ "bm", "Learn" }
+		};
+
+		internal static MMvalues MMvalue(MidiDev md)
+		{
+			return new MMvalues
+			{
+				MidiIn = available[md.devMessage >> 24],
+				word = $"{md.devMessage:X8}",
+				button = buttonList[md.butName]
+			};
+		}
 
 		internal static bool Start(ViewModel m, Control c)
 		{

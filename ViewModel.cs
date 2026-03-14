@@ -30,6 +30,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		readonly PropertyChangedEventArgs Cevent = new PropertyChangedEventArgs("ChangedVisibility");
 		readonly PropertyChangedEventArgs Devent = new PropertyChangedEventArgs("DGheight");
 		readonly PropertyChangedEventArgs Fevent = new PropertyChangedEventArgs("Forget");
+		readonly PropertyChangedEventArgs Mevent = new PropertyChangedEventArgs("MGheight");
 		readonly PropertyChangedEventArgs Sevent = new PropertyChangedEventArgs("SelectedProperty");
 		readonly PropertyChangedEventArgs SPevent = new PropertyChangedEventArgs("SliderProperty");
 		readonly PropertyChangedEventArgs SVevent = new PropertyChangedEventArgs("SliderValue");
@@ -46,6 +47,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				{
 					_bvis = value;
 					PropertyChanged?.Invoke(this, Bevent);
+					// collapse (0) or expand (double.NaN) XAML datagrid "dg"
 					DGheight = (Visibility.Hidden == _bvis) ? 0 : (Visibility.Hidden == _fvis) ? double.NaN : 0;
 				}
 			}
@@ -61,6 +63,20 @@ namespace blekenbleu.SimHub_Remote_menu
 				{
 					_dgheight = value;
 					PropertyChanged?.Invoke(this, Devent);
+				}
+			}
+		}
+
+		private double _mgheight = 0;
+		public double MGheight
+		{
+			get { return _mgheight; }
+			set
+			{
+				if (_mgheight != value)
+				{
+					_mgheight = value;
+					PropertyChanged?.Invoke(this, Mevent);
 				}
 			}
 		}
@@ -91,6 +107,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					_fvis = value;
 					PropertyChanged?.Invoke(this, Fevent);
 					DGheight = (Visibility.Hidden == _bvis) ? 0 : (Visibility.Hidden == _fvis) ? double.NaN : 0;
+					MGheight = (Visibility.Hidden == _bvis) ? 0 : (Visibility.Hidden == _fvis) ? 0 : double.NaN;
 				}
 			}
 		}

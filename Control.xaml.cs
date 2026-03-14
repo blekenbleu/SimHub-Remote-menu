@@ -17,7 +17,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		static WebMenu OK;
 		internal static ViewModel Model;			// reference XAML controls
 		internal byte Selection;					// changes only in WebMenu.Select() on UI thread
-		internal static string version = "1.91";
+		internal static string version = "1.92";
 		//internal ContentControl MyControl = new ContentControl();
 
 		public Control() {							// called before simValues are initialized
@@ -32,7 +32,10 @@ namespace blekenbleu.SimHub_Remote_menu
 			OK = plugin;							// Control.xaml button events call WebMenu methods
 			dg.ItemsSource = WebMenu.simValues;		// bind XAML DataGrid
 			if (0 < OK.Settings.midiDevs.Count)
+			{
 				MIDI.Resume(Model, this, OK);
+				Init_mg();							// Midi Learn display
+			}
 			else Model.MidiStatus += "\nno MIDI configured";
 		}
 

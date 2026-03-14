@@ -82,6 +82,7 @@
     <Compile Include="HTML.cs" />
     <Compile Include="HTTPserver.cs" />
     <Compile Include="Init.cs" />
+    <Compile Include="Init_mg.cs" />
     <Compile Include="Json.cs" />
     <Compile Include="MIDI.cs" />
     <Compile Include="Parse_ini.cs" />
