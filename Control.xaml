@@ -57,44 +57,44 @@
 		</StackPanel>
 
 		<!-- Control.xaml.cs Control() binds dg to WebMenu.cs List<Values> simValues -->
-		<DataGrid x:Name="dg" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True"
+			<DataGrid x:Name="dg" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True"
 				SelectionUnit="Cell" SelectionMode="Single" Loaded="DgSelect"
-				CanUserAddRows="False" CanUserSortColumns="False" Width="316">
-			<DataGrid.CellStyle>
-				<Style TargetType="{x:Type DataGridCell}">
-					<Setter Property="IsHitTestVisible" Value="False"/>
-					<Style.Triggers>
-						<Trigger Property="IsSelected" Value="True">
-							<Setter Property="Background" Value="Red"/>
-						</Trigger>
-					</Style.Triggers>
-				</Style>
-			</DataGrid.CellStyle>
-			<DataGrid.Columns>
-				<DataGridTextColumn Header="Property" Binding="{Binding Name}"/>
-				<DataGridTextColumn Header="Current" Binding="{Binding Current}">
-					<DataGridTextColumn.ElementStyle>
-						<Style TargetType="{x:Type TextBlock}">
-							<Setter Property="HorizontalAlignment" Value="Center" />
-						</Style>
-					</DataGridTextColumn.ElementStyle>
-				</DataGridTextColumn>
-				<DataGridTextColumn Header="Previous" Binding="{Binding Previous}">
-					<DataGridTextColumn.ElementStyle>
-						<Style TargetType="{x:Type TextBlock}">
-							<Setter Property="HorizontalAlignment" Value="Center" />
-						</Style>
-					</DataGridTextColumn.ElementStyle>
-				</DataGridTextColumn>
-				<DataGridTextColumn Header="Default" Binding="{Binding Default}">
-					<DataGridTextColumn.ElementStyle>
-						<Style TargetType="{x:Type TextBlock}">
-							<Setter Property="HorizontalAlignment" Value="Center" />
-						</Style>
-					</DataGridTextColumn.ElementStyle>
-				</DataGridTextColumn>
-			</DataGrid.Columns>
-		</DataGrid>
-	</StackPanel>
+				CanUserAddRows="False" CanUserSortColumns="False" Width="316" Height="{Binding DGheight}">
+				<DataGrid.CellStyle>
+					<Style TargetType="{x:Type DataGridCell}">
+						<Setter Property="IsHitTestVisible" Value="False"/>
+						<Style.Triggers>
+							<Trigger Property="IsSelected" Value="True">
+								<Setter Property="Background" Value="Red"/>
+							</Trigger>
+						</Style.Triggers>
+					</Style>
+				</DataGrid.CellStyle>
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="Property" Binding="{Binding Name}"/>
+					<DataGridTextColumn Header="Current" Binding="{Binding Current}">
+						<DataGridTextColumn.ElementStyle>
+							<Style TargetType="{x:Type TextBlock}">
+								<Setter Property="HorizontalAlignment" Value="Center" />
+							</Style>
+						</DataGridTextColumn.ElementStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Previous" Binding="{Binding Previous}">
+						<DataGridTextColumn.ElementStyle>
+							<Style TargetType="{x:Type TextBlock}">
+								<Setter Property="HorizontalAlignment" Value="Center" />
+							</Style>
+						</DataGridTextColumn.ElementStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Default" Binding="{Binding Default}">
+						<DataGridTextColumn.ElementStyle>
+							<Style TargetType="{x:Type TextBlock}">
+								<Setter Property="HorizontalAlignment" Value="Center" />
+							</Style>
+						</DataGridTextColumn.ElementStyle>
+					</DataGridTextColumn>
+				</DataGrid.Columns>
+			</DataGrid>
+		</StackPanel>
   </Grid>
 </UserControl>

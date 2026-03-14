@@ -28,6 +28,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		// events to raise
 		readonly PropertyChangedEventArgs Bevent = new PropertyChangedEventArgs("ButtonVisibility");
 		readonly PropertyChangedEventArgs Cevent = new PropertyChangedEventArgs("ChangedVisibility");
+		readonly PropertyChangedEventArgs Devent = new PropertyChangedEventArgs("DGheight");
 		readonly PropertyChangedEventArgs Fevent = new PropertyChangedEventArgs("Forget");
 		readonly PropertyChangedEventArgs Sevent = new PropertyChangedEventArgs("SelectedProperty");
 		readonly PropertyChangedEventArgs SPevent = new PropertyChangedEventArgs("SliderProperty");
@@ -35,7 +36,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		readonly PropertyChangedEventArgs Tevent = new PropertyChangedEventArgs("Text");
 
 
-        private Visibility _bvis = Visibility.Hidden;	// until carID and game are defined
+		private Visibility _bvis = Visibility.Hidden;	// until carID and game are defined
 		public Visibility ButtonVisibility				// must be public for XAML Binding
 		{
 			get { return _bvis; }
@@ -45,6 +46,21 @@ namespace blekenbleu.SimHub_Remote_menu
 				{
 					_bvis = value;
 					PropertyChanged?.Invoke(this, Bevent);
+					DGheight = (Visibility.Hidden == _bvis) ? 0 : (Visibility.Hidden == _fvis) ? double.NaN : 0;
+				}
+			}
+		}
+
+		private double _dgheight = 0;
+		public double DGheight
+		{
+			get { return _dgheight; }
+			set
+			{
+				if (_dgheight != value)
+				{
+					_dgheight = value;
+					PropertyChanged?.Invoke(this, Devent);
 				}
 			}
 		}
@@ -59,6 +75,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				{
 					_cvis = value;
 					PropertyChanged?.Invoke(this, Cevent);
+
 				}
 			}
 		}
@@ -73,6 +90,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				{
 					_fvis = value;
 					PropertyChanged?.Invoke(this, Fevent);
+					DGheight = (Visibility.Hidden == _bvis) ? 0 : (Visibility.Hidden == _fvis) ? double.NaN : 0;
 				}
 			}
 		}
@@ -162,7 +180,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					_Text = value;
 					string s = SSEtext(true);
 
-                    HttpServer.SSErespond(s);
+					HttpServer.SSErespond(s);
 					PropertyChanged?.Invoke(this, Tevent);
 				}
 			}
@@ -183,5 +201,5 @@ namespace blekenbleu.SimHub_Remote_menu
 				}
 			}
 		}
-    }		// public class ViewModel
+	}		// public class ViewModel
 }

@@ -14,9 +14,9 @@ namespace blekenbleu.SimHub_Remote_menu
 		internal static SortedList<int, string> click = new SortedList<int, string>() {};
 		static int recent, forget;					// MidiDev messages with data2 masked out
 		internal static bool busy;
-		static bool button, _learn = false;            // state variables
-        internal static bool changed;
-        static string again = " ";
+		static bool button, _learn = false;			// state variables
+		internal static bool changed;
+		static string again = " ";
 
 		static bool Earn
 		{
@@ -97,13 +97,13 @@ namespace blekenbleu.SimHub_Remote_menu
 				forget = 0;
 				again = "";
 			}
-			Model.MidiStatus = (Earn && MIDI.Start(Model, this)) ?  "\n\twaiting for MIDI input" : " ";
+			Model.MidiStatus = (Earn && MIDI.Start(Model, this)) ? "\n\twaiting for MIDI input" : " ";
 		}
 
 		// Handle Control Change (0xB0), Patch Change (0xC0) and Bank Select (0xB0) channel messages
 		// https://github.com/naudio/NAudio/blob/master/NAudio.Midi/Midi/MidiEvent.cs#L24
 		// https://www.hobbytronics.co.uk/wp-content/uploads/2023/07/9_MIDI_code.pdf
-		internal static void ProcessMIDI(int MidiMessage)  // called by async Task Channel.ReadAsync()
+		internal static void ProcessMIDI(int MidiMessage)	// called by async Task Channel.ReadAsync()
 		{
 			busy = true;
 /*			NAudio bytes are reversed from e.g. MidiView and WetDry:  Status byte is least significant..
