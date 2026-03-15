@@ -22,9 +22,9 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		public Control() {							// called before simValues are initialized
 			Model = new ViewModel(this);
-			InitializeComponent();
 			DataContext = Model;					// StaticControl events change Control.xaml binds
 			changed = Earn = false;					// Control.midi.cs
+			InitializeComponent();
 		}
 
 		public Control(WebMenu plugin) : this()

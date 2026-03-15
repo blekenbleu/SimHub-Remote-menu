@@ -1,12 +1,53 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
-	public class MMvalues
+	// programatically define XAML DataGrid `mg` columns;  see Value.cs
+	public class MMvalues : INotifyPropertyChanged
 	{
-		public string MidiIn;
-		public string word;
-		public string button;
+		private string _MidiIn = "MidiIn", _word = "word", _button = "button";
+		public event PropertyChangedEventHandler PropertyChanged;
+		private readonly PropertyChangedEventArgs Bevent = new PropertyChangedEventArgs("button");
+		private readonly PropertyChangedEventArgs Mevent = new PropertyChangedEventArgs("MidiIn");
+		private readonly PropertyChangedEventArgs Wevent = new PropertyChangedEventArgs("word");
+
+		public string MidiIn
+		{
+			get { return _MidiIn; }
+			set
+			{
+				if (string.Compare(_MidiIn, value) != 0)
+				{
+					_MidiIn = value;
+					PropertyChanged?.Invoke(this, Mevent);
+				}
+			}
+		}
+		public string word
+		{
+			get { return _word; }
+			set
+			{
+				if (string.Compare(_word, value) != 0)
+				{
+					_word = value;
+					PropertyChanged?.Invoke(this, Wevent);
+				}
+			}
+		}
+		public string button
+		{
+			get { return _button; }
+			set
+			{
+				if (string.Compare(_button, value) != 0)
+				{
+					_button = value;
+					PropertyChanged?.Invoke(this, Bevent);
+				}
+			}
+		}
 	}
 
 	public partial class Control

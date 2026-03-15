@@ -8,21 +8,22 @@ Directly support MIDI device inputs for controlling property change actions.
 - restore learned MIDI from `Settings.midiDevs` and `Resume()` after game changes
 
 SimHub **Controls and events** handles **Controllers** joystick button, but not axis events.
-#### To do:
-- Stop unused `mMidiIn` devices after learn
+### To do:
+- Stop unused **MIDI IN** (`mMidiIn`) devices after **MIDI learn**
+- update click list edit screen, which replaces `dg` DataGrid for **MIDI learn**
+	![](clickList.png)
+
+### Done:
 - log active MIDI devices
 - refactor Resume()
-	- keep all ProductName in click list
-		- preserve learnings for ProductNames currently unavailable
-- click list edit screen - replacing `dg` DataGrid for review / deletions
-
+	- preserve learnings for ProductNames currently unavailable
 #### MIDI Init
 Available devices may change at any time;  
 - check `MidiIn.DeviceInfo` on every `Init()`;
 	- extract `available` and `used` ProductName Lists
 - sort `Settings.midiDevs` into `lMidiIn` and `unused`
 
-#### MISI Stop
+#### `MIDI.Stop()`
 if changed,
 - convert `lMidiIn` back to `Settings.midiDevs`
 	- then Concat `unused` to `Settings.midiDevs`

@@ -4,7 +4,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:local="clr-namespace:blekenbleu.SimHub_Remote_menu"
-	mc:Ignorable="d"
+             mc:Ignorable="d"
 	Width="480" HorizontalAlignment="Left" VerticalAlignment="Top">
   <Grid Margin="50,10,0,0" HorizontalAlignment="Left">
 	<StackPanel VerticalAlignment="Top">
@@ -96,7 +96,7 @@
 				</DataGrid.Columns>
 			</DataGrid>
 
-		<!-- Control.xaml.cs Control() binds mg to Init_mg.cs List<MMvalues> MidiMenu -->
+		<!-- Init_mg.cs binds mg to List<MMvalues> MidiMenu -->
             <DataGrid x:Name="mg" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True"
 				SelectionUnit="Cell" SelectionMode="Single" Loaded="DgSelect"
 				CanUserAddRows="False" CanUserSortColumns="False" Width="316" Height="{Binding MGheight}">
@@ -119,7 +119,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Button     " Binding="{Binding button}">
+                    <DataGridTextColumn Header="Control    " Binding="{Binding button}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
                                 <Setter Property="HorizontalAlignment" Value="Center" />
