@@ -6,11 +6,11 @@ namespace blekenbleu.SimHub_Remote_menu
 	// programatically define XAML DataGrid `mg` columns;  see Value.cs
 	public class MMvalues : INotifyPropertyChanged
 	{
-		private string _MidiIn = "MidiIn", _word = "word", _button = "button";
+		private string _MidiIn = "MidiIn", _word = "Word", _button = "Button";
 		public event PropertyChangedEventHandler PropertyChanged;
-		private readonly PropertyChangedEventArgs Bevent = new PropertyChangedEventArgs("button");
+		private readonly PropertyChangedEventArgs Bevent = new PropertyChangedEventArgs("Button");
 		private readonly PropertyChangedEventArgs Mevent = new PropertyChangedEventArgs("MidiIn");
-		private readonly PropertyChangedEventArgs Wevent = new PropertyChangedEventArgs("word");
+		private readonly PropertyChangedEventArgs Wevent = new PropertyChangedEventArgs("Word");
 
 		public string MidiIn
 		{
@@ -24,7 +24,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				}
 			}
 		}
-		public string word
+		public string Word
 		{
 			get { return _word; }
 			set
@@ -36,7 +36,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				}
 			}
 		}
-		public string button
+		public string Button
 		{
 			get { return _button; }
 			set
@@ -52,7 +52,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 	public partial class Control
 	{
-		public List<MMvalues> MidiMenu;
+		public static List<MMvalues> MidiMenu;
 
 		void Init_mg()
 		{

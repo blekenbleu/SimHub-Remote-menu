@@ -34,7 +34,7 @@
 				Background="DarkSlateGray" TextWrapping="Wrap"/>
 		</ScrollViewer>
 		<StackPanel Orientation="Horizontal">
-		<Button x:Name="b0" Content=" Up " Height="40" Click="ButEvent"
+		<Button x:Name="b0" Content="Scroll Up" Height="40" Click="ButEvent"
 				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
 		<Button x:Name="b1" Content="Down" Height="40" Click="ButEvent"
 				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
@@ -99,7 +99,7 @@
 		<!-- Init_mg.cs binds mg to List<MMvalues> MidiMenu -->
             <DataGrid x:Name="mg" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True"
 				SelectionUnit="Cell" SelectionMode="Single" Loaded="DgSelect"
-				CanUserAddRows="False" CanUserSortColumns="False" Width="316" Height="{Binding MGheight}">
+				CanUserAddRows="False" CanUserSortColumns="False" Width="320" Height="{Binding MGheight}">
                 <DataGrid.CellStyle>
                     <Style TargetType="{x:Type DataGridCell}">
                         <Setter Property="IsHitTestVisible" Value="False"/>
@@ -111,15 +111,15 @@
                     </Style>
                 </DataGrid.CellStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="MIDI in device          " Binding="{Binding MidiIn}"/>
-                    <DataGridTextColumn Header="MIDI word" Binding="{Binding word}">
+                    <DataGridTextColumn Header="MIDI in device        " Binding="{Binding MidiIn}"/>
+                    <DataGridTextColumn Header="MIDI word" Binding="{Binding Word}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
                                 <Setter Property="HorizontalAlignment" Value="Center" />
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Control    " Binding="{Binding button}">
+                    <DataGridTextColumn Header="Control    " Binding="{Binding Button}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
                                 <Setter Property="HorizontalAlignment" Value="Center" />

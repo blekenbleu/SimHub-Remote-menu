@@ -27,9 +27,12 @@ namespace blekenbleu.SimHub_Remote_menu
 				}
 		}
 
-		internal static void Add(int recent, string bName)
+		internal void Add(int recent, string bName)
 		{
 			click.Add(recent, bName);
+			MidiMenu.Add(MIDI.MMvalue(recent, bName));
+			mg.ItemsSource = null;
+			mg.ItemsSource = MidiMenu;
 			changed = true;
 		}
 
@@ -59,7 +62,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		// https://github.com/blekenbleu/SimHub-Remote-menu/blob/MIDI/Channel.md#midi-device-name-handling
 		// https://learn.microsoft.com/en-us/dotnet/api/system.collections.sortedlist?view=netframework-4.8
 		// https://www.hobbytronics.co.uk/wp-content/uploads/2023/07/9_MIDI_code.pdf
-		void Learn(string bName)	// associate MIDI messages with xaml button events
+		void Learn(string bName)	// associate MIDI messages with xaml Button events
 		{
 			if ( "bf" == bName)					// Forget click?
 			{
@@ -79,6 +82,13 @@ namespace blekenbleu.SimHub_Remote_menu
 				else {
 					Model.MidiStatus = $"\nremoving MIDI {forget:X8} for {click[forget]}...";
 					click.Remove(forget);
+					int i = MidiMenu.FindIndex(m => m.Word == $"{forget:X8}");
+                    if (0 <= i)
+					{
+						MidiMenu.RemoveAt(i);
+						mg.ItemsSource = null;
+						mg.ItemsSource = MidiMenu;
+					}
 					changed = true;
 					forget = 0;
 					again = "";
@@ -123,7 +133,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			int latest = 0x0700FFFF & MidiMessage;
 			int mVal = 127 & (MidiMessage >> 16);
 			if (Earn) {
-				if (0xB0 != (0xFF00F0 & MidiMessage))	// ignore CC button releases
+				if (0xB0 != (0xFF00F0 & MidiMessage))	// ignore CC Button releases
 				{
 					if (recent != latest)
 					{
@@ -147,7 +157,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					OK.FromSlider(mVal/1.27);				// MIDI value as if from slider, except 0-127
 					OK.ToSlider();							// update WPF slider position
 				}
-				else if (0xB0 != (0x7F00F0 & MidiMessage))	// ignore CC button 0 values
+				else if (0xB0 != (0x7F00F0 & MidiMessage))	// ignore CC Button 0 values
 					OK.ClickHandle(click[latest]);
 			}
 			else Model.MidiStatus = $"\nMIDI({latest:X8}) not learned";

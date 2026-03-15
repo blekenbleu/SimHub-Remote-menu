@@ -32,7 +32,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				ProcessMIDI(payload);		// Control.midi.cs
 			else if (-1 == payload)			// WPF RoutedEvent
 			{
-				if ("bm" == name)			// [MIDI learn] button
+				if ("bm" == name)			// [MIDI learn] Button
 					NotEarn();
 				else if (Earn)				// learning events
 					Learn(name);
@@ -41,13 +41,13 @@ namespace blekenbleu.SimHub_Remote_menu
 			else if (Earn)					// System.Windows.Input.Mouse event
 			{								// learn slider map
 				if (button)					// only 0 or 127 values?
-					Model.MidiStatus = "\nMIDI control >>only<< for button; ignored";
+					Model.MidiStatus = "\nMIDI control >>only<< for Button; ignored";
 				else ListClick(name);		// Control.midi.cs
 			}
 			else OK.FromSlider(0.1 * payload);
 		}
 
-		// handle all button events in one method
+		// handle all Button events in one method
 		internal async void ButEvent(object sender, RoutedEventArgs e)
 		{
 			string butName = (e.OriginalSource as FrameworkElement).Name;

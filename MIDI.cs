@@ -49,13 +49,23 @@ namespace blekenbleu.SimHub_Remote_menu
 			{ "bm", "Learn" }
 		};
 
+		internal static MMvalues MMvalue(int devMessage, string butName)
+		{
+			return new MMvalues
+			{
+				MidiIn = available[devMessage >> 24],
+				Word = $"{devMessage:X8}",
+				Button = buttonList[butName]
+			};
+		}
+
 		internal static MMvalues MMvalue(MidiDev md)
 		{
 			return new MMvalues
 			{
 				MidiIn = available[md.devMessage >> 24],
-				word = $"{md.devMessage:X8}",
-				button = buttonList[md.butName]
+				Word = $"{md.devMessage:X8}",
+				Button = buttonList[md.butName]
 			};
 		}
 

@@ -5,7 +5,7 @@ namespace blekenbleu.SimHub_Remote_menu
 	public partial class WebMenu
 	{
 		/// <summary>
-		/// Helper functions used in Init() AddAction()s and Control.xaml.cs button Clicks
+		/// Helper functions used in Init() AddAction()s and Control.xaml.cs Button Clicks
 		/// </summary>
 		void Actions()
 		{
