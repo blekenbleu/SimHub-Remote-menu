@@ -41,7 +41,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			else if (Earn)					// System.Windows.Input.Mouse event
 			{								// learn slider map
 				if (button)					// only 0 or 127 values?
-					Model.MidiStatus = "\nMIDI control >>only<< for Button; ignored";
+					Model.MidiStatus = "\nMIDI control {payload:X8} >>only<< for Button; ignored";
 				else ListClick(name);		// Control.midi.cs
 			}
 			else OK.FromSlider(0.1 * payload);
