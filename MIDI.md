@@ -10,10 +10,12 @@ Directly support MIDI device inputs for controlling property change actions.
 SimHub **Controls and events** handles **Controllers** joystick button, but not axis events.
 ### To do:
 - Stop unused **MIDI IN** (`mMidiIn`) devices after **MIDI learn**
-- update click list edit screen, which replaces `dg` DataGrid for **MIDI learn**
-	![](clickList.png)
+- Now that click list is displayed, hide **Forget** until it makes sense
+- prompt using button labels instead of names
 
 ### Done:
+- update `mg` DataGrid click list edit screen, which replaces `dg` DataGrid for **MIDI learn**
+	![](clickList.png)
 - log active MIDI devices
 - refactor Resume()
 	- preserve learnings for ProductNames currently unavailable
