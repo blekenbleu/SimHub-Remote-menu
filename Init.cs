@@ -1,19 +1,22 @@
 using SimHub.Plugins;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Linq;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
 	public partial class WebMenu : IPlugin
 	{
-        bool OOpa(string msg)   // defer MessageBox.Show() until GetWPFSettingsControl()
+		int CarPropCount = 0, GamePropCount = 0;
+		bool OOpa(string msg)   // defer MessageBox.Show() until GetWPFSettingsControl()
 		{
 			Msg += msg + "\n";
 			return true;
 		}
 
 		/// <summary>
-		/// Called once at SimHub startup, then at game changes
+		/// Called at SimHub startup, then at game changes
+		/// On exit, simValues, data and Settings reflect properties defined from Myni.* properties,
+		/// obtained by SimHub from e.g. NCalcScripts/WebMenu.ini
 		/// </summary>
 		/// <param name="pluginManager"></param>
 		public void Init(PluginManager pluginManager)
@@ -25,104 +28,13 @@ namespace blekenbleu.SimHub_Remote_menu
 			// https://github.com/blekenbleu/SimHub-Remote-menu/blob/main/Properties.md
 			Settings = this.ReadCommonSettings<DataPluginSettings>(
 												"GeneralSettings", () => new DataPluginSettings());
+			// Load existing slim-formatted JSON file;  Populate() may grab values from it
+			// its values for configured properties are supposed more current than .ini
+			if (write = Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()))
+				OOpa($"Load({path}): " + Msg);
 
-			// restore previously saved car properties
-			SettingsProps = new List<Property> {};			// deep copy
-			foreach(Property p in Settings.properties)
-				if (null != p.Name && null != p.Value)
-					SettingsProps.Add(new Property() { Name = p.Name, Value = p.Value });
-
-			Steps = new List<int>() {};     // for Populate()
-
-            // property and setting names, default values and steps from WebMenu.ini
-            string pts, ds = pluginManager.GetPropertyValue(pts = Myni + "properties")?.ToString();
-			string vts, vs = pluginManager.GetPropertyValue(vts = Myni + "values")?.ToString();
-			string sts, ss = pluginManager.GetPropertyValue(sts = Myni + "steps")?.ToString();
-			if ((!(null == ds && (0 == Settings.pcount || OOpa($"per-car properties not found"))))
-			 && (!(null == vs && OOpa($"'{vts}' not found")))
-			 && (!(null == ss && OOpa($"'{sts}' not found")))
-			   )
-			{
-				// WebMenu.ini defines per-car Properties
-				List<string> CarProps = new List<string>(ds.Split(','));
-				pCount = CarProps.Count;						// these are per-car
-				List<string> values = new List<string>(vs.Split(','));
-				List<string> steps = new List<string>(ss.Split(','));
-				if (pCount != values.Count || pCount != steps.Count)
-					OOpa($"{pCount} per-car properties;  "
-						+$"{values.Count} values;  {steps.Count} steps");
-				Populate(CarProps, values, steps);
-			}
-			if (Settings.pcount != simValues.Count)
-			{
-				set = true;
-				Settings.pcount = simValues.Count;
-			}
-
-			// WebMenu.ini also optionally defines per-game Properties
-			string ptts = Myni + "gameprops";
-			string dss = pluginManager.GetPropertyValue(ptts)?.ToString();
-			string vtts = Myni + "gamevals";
-			string vss = pluginManager.GetPropertyValue(vtts)?.ToString();
-			string stts = Myni + "gamesteps";
-			string sss = pluginManager.GetPropertyValue(stts)?.ToString();
-			if ((!(null == dss && (0 == Settings.gcount || OOpa($"per-game properties not found"))))
-			 && (!(null == vss && OOpa($"'{vtts}' not found")))
-			 && (!(null == sss && OOpa($"'{stts}' not found")))
-				)
-			{
-				List<string> Sprops = new List<string>(dss.Split(','));
-				List<string> values = new List<string>(vss.Split(','));
-				List<string> steps = new List<string>(sss.Split(','));
-				if (Sprops.Count != values.Count || Sprops.Count != steps.Count)
-					OOpa($"{Sprops.Count} gameprops;  {values.Count} gamevals;"
-									+ $"  {steps.Count} gamesteps");
-				gCount = (Sprops.Count < values.Count) ? Sprops.Count : values.Count;
-				if (gCount > steps.Count)
-					gCount = steps.Count + pCount;
-				else gCount += pCount;
-				Populate(Sprops, values, steps);
-			}
-			if (Settings.gcount != simValues.Count - Settings.pcount) {
-				set = true;
-				Settings.gcount = simValues.Count - Settings.pcount;
-			}			
-
-			// WebMenu.ini also optionally defines global settings
-			string pgts = Myni + "settings";
-			string dgs = pluginManager.GetPropertyValue(pgts)?.ToString();
-			string vgts = Myni + "setvals";
-			string vgs = pluginManager.GetPropertyValue(vgts)?.ToString();
-			string sgts = Myni + "setsteps";
-			string sgs = pluginManager.GetPropertyValue(sgts)?.ToString();
-			bool noglob = (0 == Settings.gDefaults.Count); // && OOpa($"global properties not found");
-
-			if	((!(null == dgs && noglob))
-			 &&  (!(null == vgs && OOpa($"'{vgts}' not found")))
-			 &&  (!(null == sgs && OOpa($"'{sgts}' not found")))
-				)
-			{
-				List<string> Gprops = new List<string>(dgs.Split(','));
-				List<string> values = new List<string>(vgs.Split(','));
-				List<string> steps = new List<string>(sgs.Split(','));
-				if (Gprops.Count != values.Count || Gprops.Count != steps.Count)
-					OOpa($"{Gprops.Count} settings;  {values.Count} setvals;"
-									+ $"  {steps.Count} setsteps");
-				for (int i = 0; i < Gprops.Count; i++)
-					if (0 == Gprops[i].Length)			// settings may be empty
-					{
-						Gprops.RemoveAt(i);
-						values.RemoveAt(i);
-						steps.RemoveAt(i--);
-					}
-				Populate(Gprops, values, steps);
-			}
-
-			if (Settings.gDefaults.Count != simValues.Count - (Settings.gcount + Settings.pcount))
-			{
-				Settings.gDefaults = new List<Property>() {};
-				set = true;
-			}
+			// Populate() simValues, CarProps, GameProps, iniDefaults
+			Parse_ini(pluginManager, ref CarProp, ref GameProp);
 
 			if (0 == simValues.Count)
 			{
@@ -131,35 +43,80 @@ namespace blekenbleu.SimHub_Remote_menu
 				return;
 			}
 
-			// Recover default global values from Settings
-			// for properties which remain global since previous game instance.
-			{
-				int gd, scount = SettingsProps.Count;
+			if (0 < pluginManager?.GameName.Length)
+				Settings.game = pluginManager.GameName;
+			if (0 < Settings.game?.Length) 				// Relevant game values from JSON
+				gndx = data.gList.FindIndex(g => g.cList[0].Name == pluginManager.GameName);
+			else gndx = -1;
 
-				for (gd = 0; gd < Settings.gDefaults.Count; gd++)
+			// Recover simValues from Settings or JSON
+			for (int v = 0; v < simValues.Count; v++)
+			{
+				if (0 <= (Index = Settings.Name.FindIndex(s => s == simValues[v].Name)))
 				{
-					int Index = simValues.FindIndex(s => s.Name == Settings.gDefaults[gd].Name);
-					if (Index >= gCount)	// still global?
-						simValues[Index].Default = Settings.gDefaults[gd].Value;
+					simValues[v].Current = simValues[v].Previous = Settings.Value[Index];
+					if (Index < Settings.defaults.Count)
+						simValues[v].Default = Settings.defaults[Index];
 				}
+				if (0 > gndx || 0 > (Index = data.pList.FindIndex(s => s == simValues[v].Name)))
+					continue;
+				
+				if (Index < data.gList[gndx].cList[0].vList.Count)
+					simValues[v].Default = data.gList[gndx].cList[0].vList[Index];
 
-				string sl = pluginManager.GetPropertyValue(Myni + "slider")?.ToString();
-
-				if (null != sl)
-					slider = simValues.FindIndex(i => i.Name == sl);
+				if (Index < data.gList[gndx].rList?.Count)
+					simValues[v].Current = data.gList[gndx].rList[Index];
 			}
 
-			// at this point, simValues has all properties from .ini,
-			// with original .ini default and previous property values
-			// still-configured from most recent game instance
-			// Load existing JSON, using slim format
-			// JSON values for still-configured properties are supposed more current than .ini
-			if (Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()))
+			string sl = pluginManager.GetPropertyValue(Myni + "slider")?.ToString();
+
+			if (0 == sl?.Length)
+				slider = 0;
+			else if (0 > (slider = simValues.FindIndex(i => i.Name == sl)))
+				slider = 0;
+
+			// at this point, simValues has all properties from .ini
+			// updated from matching Settings or JSON
+			bool update = false;
+
+			if (write)												// bad Load()?
 			{
-				if (0 < Msg.Length)
-					OOpa($"Load({path}): " + Msg);
-				Data();										// Slim.cs
+				data = new PluginList()								// @ slim.cs line 20
+				{
+					Plugin = "WebMenu",
+					pList = new List<string> {},
+					gList = new List<GameList>() {}					// @ slim.cs line 15
+                };
+				update = true;
 			}
+			else if (GamePropCount != data.pList.Count)
+				update = true;
+			else for (int i = 0; i < GamePropCount && !update; i++)
+				if (simValues[i].Name != data.pList[i])
+					update = true;
+
+			for (int i = 0; i < data.gList.Count && !update; i++)
+				if (data.gList[i].rList?.Count != GamePropCount)
+					update = true;
+
+			if (update)												// all GameLists may be out of sync
+			{
+				UpdateSlim();
+				data.pList = CarProp.Concat(GameProp).ToList();		// per-car, then -game property names
+			}
+
+			// now reuse update to sort Settings
+			update = Settings.Name?.Count != simValues.Count
+					|| Settings.defaults?.Count != simValues.Count - GamePropCount;
+			for (int i = 0; i < Settings.defaults?.Count && !update; i++)
+				if (simValues[i + GamePropCount].Name != Settings.defaults[i])
+					update = true;
+			for (int i = 0; i < simValues.Count && !update; i++)
+				if (simValues[i].Name != Settings.Name[i])
+					update = true;
+
+			if (update) // recreate Settings from simValues; may not get saved...
+				SettingsFrom_simValues(Settings.game, Settings.carid);
 
 			// Declare available properties
 			// SimHub properties by AttachDelegate get evaluated "on demand"
@@ -168,11 +125,11 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			this.AttachDelegate("Selected", () => Control.Model.SelectedProperty);
 			this.AttachDelegate("New Car", () => NewCar);
-			this.AttachDelegate("Car", () => CurrentCar);
-			this.AttachDelegate("Game", () => Gname);
-			this.AttachDelegate("Msg", () => Msg);
+			this.AttachDelegate("Game",   () => Gname);
+			this.AttachDelegate("Car",	 () => CurrentCar);
+			this.AttachDelegate("Msg",	() => Msg);
 			Actions();
-			Info($"Init():  simValues.Count = {simValues.Count}");
+			Info($"Init():  simValues.Count = {simValues.Count}" + MIDI.Init() + HttpServer.Init());
 		}	// Init()
 	}		// class WebMenu
 }

@@ -4,7 +4,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:local="clr-namespace:blekenbleu.SimHub_Remote_menu"
-	mc:Ignorable="d"
+             mc:Ignorable="d"
 	Width="480" HorizontalAlignment="Left" VerticalAlignment="Top">
   <Grid Margin="50,10,0,0" HorizontalAlignment="Left">
 	<StackPanel VerticalAlignment="Top">
@@ -18,7 +18,7 @@
 					<TextBlock FontWeight="Medium" FontSize="11" Height="20" Text="Forget"/>
 			</Button>
 			<Button x:Name="bm" Click="ButEvent" Height="20" Background="Gray" Width="65"
-					Margin="5,0,0,0" Padding="5">
+				Visibility="{Binding ButtonVisibility}" Margin="5,0,0,0" Padding="5">
 				<TextBlock Text="MIDI learn"/>
 			</Button>
 			<TextBlock Text=" changed" Height="20" Width="55" Margin="5,0,0,0"
@@ -34,7 +34,7 @@
 				Background="DarkSlateGray" TextWrapping="Wrap"/>
 		</ScrollViewer>
 		<StackPanel Orientation="Horizontal">
-		<Button x:Name="b0" Content=" Up " Height="40" Click="ButEvent"
+		<Button x:Name="b0" Content="Scroll Up" Height="40" Click="ButEvent"
 				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
 		<Button x:Name="b1" Content="Down" Height="40" Click="ButEvent"
 				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
@@ -42,59 +42,93 @@
 				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
 		<Button x:Name="b3" Content=" - " Height="40" Click="ButEvent"
 				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
-		<Button x:Name="b4" Content="Swap All&#xA;w/Previous" Height="40"
-				Click="ButEvent" Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
-		<Button x:Name="b5" Content="Current&#xA;-&gt;Default" Height="40"
-				Click="ButEvent" Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
+		<Button x:Name="b4" Content="Swap All&#xA;w/Previous" Height="40" Click="ButEvent"
+				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
+		<Button x:Name="b5" Content="Current&#xA;-&gt;Default" Height="40" Click="ButEvent"
+				Visibility="{Binding ButtonVisibility}" Margin="10,0,0,0"/>
 		</StackPanel>
 
 		<StackPanel Orientation="Horizontal">
 			<Slider Maximum="100" Minimum="0" TickPlacement="BottomRight" TickFrequency="3"
 				Name="SL" Value="{Binding SliderValue}" Width="250" Height="20"
-				PreviewMouseUp="Slider_DragCompleted" Visibility="{Binding SliderVisibility}"/>
+				PreviewMouseUp="Slider_DragCompleted" Visibility="{Binding ButtonVisibility}"/>
 			<Button x:Name="SB" Content="{Binding SliderProperty}" Width="140" Height="22"
-				Click="ButEvent" Visibility="{Binding SliderVisibility}" Background="Green"/>
+				Click="ButEvent" Visibility="{Binding ButtonVisibility}" Background="Green"/>
 		</StackPanel>
 
 		<!-- Control.xaml.cs Control() binds dg to WebMenu.cs List<Values> simValues -->
-		<DataGrid x:Name="dg" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True"
+			<DataGrid x:Name="dg" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True"
 				SelectionUnit="Cell" SelectionMode="Single" Loaded="DgSelect"
-				CanUserAddRows="False" CanUserSortColumns="False" Width="316">
-			<DataGrid.CellStyle>
-				<Style TargetType="{x:Type DataGridCell}">
-					<Setter Property="IsHitTestVisible" Value="False"/>
-					<Style.Triggers>
-						<Trigger Property="IsSelected" Value="True">
-							<Setter Property="Background" Value="Red"/>
-						</Trigger>
-					</Style.Triggers>
-				</Style>
-			</DataGrid.CellStyle>
-			<DataGrid.Columns>
-				<DataGridTextColumn Header="Property" Binding="{Binding Name}"/>
-				<DataGridTextColumn Header="Current" Binding="{Binding Current}">
-					<DataGridTextColumn.ElementStyle>
-						<Style TargetType="{x:Type TextBlock}">
-							<Setter Property="HorizontalAlignment" Value="Center" />
-						</Style>
-					</DataGridTextColumn.ElementStyle>
-				</DataGridTextColumn>
-				<DataGridTextColumn Header="Previous" Binding="{Binding Previous}">
-					<DataGridTextColumn.ElementStyle>
-						<Style TargetType="{x:Type TextBlock}">
-							<Setter Property="HorizontalAlignment" Value="Center" />
-						</Style>
-					</DataGridTextColumn.ElementStyle>
-				</DataGridTextColumn>
-				<DataGridTextColumn Header="Default" Binding="{Binding Default}">
-					<DataGridTextColumn.ElementStyle>
-						<Style TargetType="{x:Type TextBlock}">
-							<Setter Property="HorizontalAlignment" Value="Center" />
-						</Style>
-					</DataGridTextColumn.ElementStyle>
-				</DataGridTextColumn>
-			</DataGrid.Columns>
-		</DataGrid>
-	</StackPanel>
+				CanUserAddRows="False" CanUserSortColumns="False" Width="316" Height="{Binding DGheight}">
+				<DataGrid.CellStyle>
+					<Style TargetType="{x:Type DataGridCell}">
+						<Setter Property="IsHitTestVisible" Value="False"/>
+						<Style.Triggers>
+							<Trigger Property="IsSelected" Value="True">
+								<Setter Property="Background" Value="Red"/>
+							</Trigger>
+						</Style.Triggers>
+					</Style>
+				</DataGrid.CellStyle>
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="Property" Binding="{Binding Name}"/>
+					<DataGridTextColumn Header="Current" Binding="{Binding Current}">
+						<DataGridTextColumn.ElementStyle>
+							<Style TargetType="{x:Type TextBlock}">
+								<Setter Property="HorizontalAlignment" Value="Center" />
+							</Style>
+						</DataGridTextColumn.ElementStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Previous" Binding="{Binding Previous}">
+						<DataGridTextColumn.ElementStyle>
+							<Style TargetType="{x:Type TextBlock}">
+								<Setter Property="HorizontalAlignment" Value="Center" />
+							</Style>
+						</DataGridTextColumn.ElementStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Default" Binding="{Binding Default}">
+						<DataGridTextColumn.ElementStyle>
+							<Style TargetType="{x:Type TextBlock}">
+								<Setter Property="HorizontalAlignment" Value="Center" />
+							</Style>
+						</DataGridTextColumn.ElementStyle>
+					</DataGridTextColumn>
+				</DataGrid.Columns>
+			</DataGrid>
+
+		<!-- Init_mg.cs binds mg to List<MMvalues> MidiMenu -->
+            <DataGrid x:Name="mg" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True"
+				SelectionUnit="Cell" SelectionMode="Single" Loaded="DgSelect"
+				CanUserAddRows="False" CanUserSortColumns="False" Width="320" Height="{Binding MGheight}">
+                <DataGrid.CellStyle>
+                    <Style TargetType="{x:Type DataGridCell}">
+                        <Setter Property="IsHitTestVisible" Value="False"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="Red"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.CellStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="MIDI in device        " Binding="{Binding MidiIn}"/>
+                    <DataGridTextColumn Header="MIDI word" Binding="{Binding Word}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="HorizontalAlignment" Value="Center" />
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Control    " Binding="{Binding Button}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="HorizontalAlignment" Value="Center" />
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+        </StackPanel>
   </Grid>
 </UserControl>

@@ -12,9 +12,10 @@ namespace blekenbleu.SimHub_Remote_menu
 	{
 		// index xaml event strings by devMessages
 		internal static SortedList<int, string> click = new SortedList<int, string>() {};
-		static int recent, forget;					// MidiDev messages with data2 masked out
+		static int recent, _forget;					// MidiDev messages with data2 masked out
 		internal static bool busy;
-		static bool button, changed, _learn = false;			// state variables
+		static bool button, _learn = false;			// state variables
+		internal static bool changed;
 		static string again = " ";
 
 		static bool Earn
@@ -22,64 +23,55 @@ namespace blekenbleu.SimHub_Remote_menu
 			get { return _learn; }
 			set {
 					_learn = value;
-					Model.Forget = _learn ? Visibility.Visible : Visibility.Hidden;
+					if (!_learn)
+						Model.Forget = Visibility.Hidden;
+					Model.MGheight = _learn ? double.NaN : 0;
 				}
 		}
 
-		internal static void Add(int recent, string bName)
+		static int forget
+		{
+			get { return _forget; }
+			set
+			{
+				_forget = value;
+				if (0 == _forget)
+				{
+					Model.Forget = Visibility.Hidden;
+					again = "";
+				}
+			}
+		}
+
+		internal void Add(int recent, string bName)
 		{
 			click.Add(recent, bName);
+			MidiMenu.Add(MIDI.MMvalue(recent, bName));
+			mg.ItemsSource = null;
+			mg.ItemsSource = MidiMenu;
 			changed = true;
 		}
-
-		internal static bool Stop()
-		{
-			if (changed)
-			{
-/*				WebMenu.Settings.midiDevs = new List<MidiDev>() {};
-				for (int j = 0; j < click.Count; j++)
-				{
-					int key = click.Keys[j];
-					int i = 0x07000000 & key;
-					i >>= 24;
-					WebMenu.Settings.midiDevs.Add(new MidiDev()
-					{
-						butName = click.Values[j],
-						devName = NAudio.Midi.MidiIn.DeviceInfo(i).ProductName,
-						devMessage = key
-					});
-				}
- */
-				WebMenu.Settings.midiDevs = click.Select(md => new MidiDev
-				{
-		    	    butName = md.Value,
-			        devMessage = md.Key,
-        			devName = MidiIn.DeviceInfo((0x07000000 & md.Key) >> 24).ProductName
-			    }).ToList();
-			}
-			return changed;
-		}
-		
 
 		void ListClick(string bName)	// checks for slider or buttons
 		{
 			if (0 == recent)
-				Model.MidiStatus = "\nMIDI input missing";
+				Model.MidiStatus = "\nMIDI input missing for '{MIDI.buttonList[bName]}'";
 			else if (click.ContainsKey(recent))
 			{
-				Model.MidiStatus = $"\nMIDI {recent:X8} already click {click[recent]};  first Forget it";
+				Model.MidiStatus = $"\nMIDI {recent:X8} already click '{MIDI.buttonList[click[recent]]}';  first Forget it";
+				Model.Forget = Visibility.Visible;
 				forget = recent;
 			}
 			else if (click.ContainsValue(bName) && again != bName)
 			{
-				Model.MidiStatus = $"\n'{bName}' already in click list; click again to also add a"
-								 + $"{recent:X8}\n -or- Forget to remove current {bName}";
+				Model.MidiStatus = $"\n'{MIDI.buttonList[bName]}' already in click list;  click again to also add for"
+								 + $"{recent:X8}\n -or- Forget to remove current '{MIDI.buttonList[bName]}'";
+				Model.Forget = Visibility.Visible;
 				again = bName;
 			}
 			else {
 				Add(recent, bName);
-				Model.MidiStatus = $"\n'{bName}' {recent:X8} added to click list";
-				again = "";
+				Model.MidiStatus = $"\n'{MIDI.buttonList[bName]}' {recent:X8} added to click list";
 				forget = recent = 0;
 			}
 		}
@@ -87,7 +79,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		// https://github.com/blekenbleu/SimHub-Remote-menu/blob/MIDI/Channel.md#midi-device-name-handling
 		// https://learn.microsoft.com/en-us/dotnet/api/system.collections.sortedlist?view=netframework-4.8
 		// https://www.hobbytronics.co.uk/wp-content/uploads/2023/07/9_MIDI_code.pdf
-		void Learn(string bName)	// associate MIDI messages with xaml button events
+		void Learn(string bName)	// associate MIDI messages with xaml Button events
 		{
 			if ( "bf" == bName)					// Forget click?
 			{
@@ -96,7 +88,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				else if (0 == forget && "" != again && click.ContainsValue(again))
 				{
 					forget = click.Keys[click.IndexOfValue(again)];
-					Model.MidiStatus = $"\nclick Forget again to remove {again} for {forget:X8}";
+					Model.MidiStatus = $"\nclick Forget again to remove '{MIDI.buttonList[again]}' for {forget:X8}";
 				}
 				else if (!click.ContainsKey(forget))
 				{
@@ -105,15 +97,21 @@ namespace blekenbleu.SimHub_Remote_menu
 					forget = 0;
 				}
 				else {
-					Model.MidiStatus = $"\nremoving MIDI {forget:X8} for {click[forget]}...";
+					Model.MidiStatus = $"\nremoving MIDI {forget:X8} for '{MIDI.buttonList[click[forget]]}'...";
 					click.Remove(forget);
+					int i = MidiMenu.FindIndex(m => m.Word == $"{forget:X8}");
+                    if (0 <= i)
+					{
+						MidiMenu.RemoveAt(i);
+						mg.ItemsSource = null;
+						mg.ItemsSource = MidiMenu;
+					}
 					changed = true;
 					forget = 0;
-					again = "";
 				}
 			}
 			else if (!button)
-				Model.MidiStatus = "\nMIDI control >>only<< for slider;  ignored";
+				Model.MidiStatus = $"\nMIDI control {recent:X8} >>only<< for slider;  ignored";
 			else ListClick(bName);
 		}
 
@@ -121,17 +119,14 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			Earn = !Earn;
 			if (!Earn)
-			{
 				forget = 0;
-				again = "";
-			}
-			Model.MidiStatus = (Earn && MIDI.Start(Model, this)) ?  "\n\twaiting for MIDI input" : " ";
+			Model.MidiStatus = (Earn && MIDI.Start(Model, this)) ? "\n\twaiting for MIDI input" : " ";
 		}
 
 		// Handle Control Change (0xB0), Patch Change (0xC0) and Bank Select (0xB0) channel messages
 		// https://github.com/naudio/NAudio/blob/master/NAudio.Midi/Midi/MidiEvent.cs#L24
 		// https://www.hobbytronics.co.uk/wp-content/uploads/2023/07/9_MIDI_code.pdf
-		internal static void ProcessMIDI(int MidiMessage)  // called by async Task Channel.ReadAsync()
+		internal static void ProcessMIDI(int MidiMessage)	// called by async Task Channel.ReadAsync()
 		{
 			busy = true;
 /*			NAudio bytes are reversed from e.g. MidiView and WetDry:  Status byte is least significant..
@@ -151,7 +146,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			int latest = 0x0700FFFF & MidiMessage;
 			int mVal = 127 & (MidiMessage >> 16);
 			if (Earn) {
-				if (0xB0 != (0xFF00F0 & MidiMessage))	// ignore CC button releases
+				if (0xB0 != (0xFF00F0 & MidiMessage))	// ignore CC Button releases
 				{
 					if (recent != latest)
 					{
@@ -162,10 +157,14 @@ namespace blekenbleu.SimHub_Remote_menu
 						button = false;
 					if (click.ContainsKey(recent))
 					{
-						Model.MidiStatus = $"\nProcess({MidiMessage:X8}) MIDI already in click list for {click[recent]};  Forget?";
+						Model.MidiStatus = $"\nProcess({MidiMessage:X8}) MIDI already in click list for {MIDI.buttonList[click[recent]]};  Forget?";
 						forget = recent;
+						Model.Forget  = Visibility.Visible;
 					}
-					else Model.MidiStatus = $"\nclick in UI to learn for ({MidiMessage:X8})";
+					else {
+						Model.MidiStatus = $"\nclick in UI to Learn for ({MidiMessage:X8})";
+						forget = 0;
+					}
 				}
 			}
 			else if (click.ContainsKey(latest))
@@ -175,8 +174,8 @@ namespace blekenbleu.SimHub_Remote_menu
 					OK.FromSlider(mVal/1.27);				// MIDI value as if from slider, except 0-127
 					OK.ToSlider();							// update WPF slider position
 				}
-				else if (0xB0 != (0x7F00F0 & MidiMessage))	// ignore CC button 0 values
-					ClickHandle(click[latest]);
+				else if (0xB0 != (0x7F00F0 & MidiMessage))	// ignore CC Button 0 values
+					OK.ClickHandle(click[latest]);
 			}
 			else Model.MidiStatus = $"\nMIDI({latest:X8}) not learned";
 			busy = false;

@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
@@ -24,6 +23,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		internal static ConcurrentDictionary<string, SsClient> clients;
 		static bool listening = false;
 		static string localIP;
+		static readonly int port = 8765;
 
 		// from https://github.com/blekenbleu/TcpMultiClient
 		internal static void Stop()
@@ -38,20 +38,13 @@ namespace blekenbleu.SimHub_Remote_menu
 		internal static async Task OpenAsync()
 		{
 			var fun = Task.Run(() => MultiClientTcpServer());
-			using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
-			{
-				socket.Connect("8.8.8.8", 65530);
-				IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
-				localIP = endPoint.Address.ToString();
-				socket.Close();
-			}
 			await fun;
 		}
 
 		// TcpClient creates a Socket to send and receive data, accessible as TcpClient.Client
 		// Each TcpClient.Client connection seemingly requires its own Task
 		// https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.tcpclient.client?view=netframework-4.8
-		public static async Task MultiClientTcpServer(int port = 8765)
+		public static async Task MultiClientTcpServer()
 		{
 			clients = new ConcurrentDictionary<string, SsClient>();
 			urls = new string[] { $"http://localhost:{port}/", $"http://127.0.0.1:{port}/", $"http://{localIP}:{port}" };
@@ -60,7 +53,6 @@ namespace blekenbleu.SimHub_Remote_menu
 			{
 				server = new TcpListener(IPAddress.Any, port);
 				server.Start();
-				WebMenu.Info($"MultiClientTcpServer(): " + urls[2]);
 
 				// Accept clients continuously
 				for (listening = true; listening;)
@@ -81,5 +73,17 @@ namespace blekenbleu.SimHub_Remote_menu
 				server?.Stop();
 			}
 		}
+
+		internal static string Init()
+        {
+			using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+			{
+				socket.Connect("8.8.8.8", 65530);
+				IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
+				localIP = endPoint.Address.ToString();
+				socket.Close();
+			}
+			return "\nMultiClient SSE:  " + localIP + $":{port}";
+        }
 	}	   // class	HttpServer
 } 			// namespace

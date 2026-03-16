@@ -17,21 +17,26 @@ namespace blekenbleu.SimHub_Remote_menu
 		static WebMenu OK;
 		internal static ViewModel Model;			// reference XAML controls
 		internal byte Selection;					// changes only in WebMenu.Select() on UI thread
-		internal static string version = "1.78";
+		internal static string version = "1.95";
+		//internal ContentControl MyControl = new ContentControl();
 
 		public Control() {							// called before simValues are initialized
 			Model = new ViewModel(this);
-			InitializeComponent();
 			DataContext = Model;					// StaticControl events change Control.xaml binds
 			changed = Earn = false;					// Control.midi.cs
+			InitializeComponent();
 		}
 
 		public Control(WebMenu plugin) : this()
 		{
-			OK = plugin;							// Control.xaml button events call WebMenu methods
-			dg.ItemsSource = WebMenu.simValues;	// bind XAML DataGrid
-			if (0 < WebMenu.Settings.midiDevs.Count)
-				MIDI.Resume(Model, this);
+			OK = plugin;							// Control.xaml Button events call WebMenu methods
+			dg.ItemsSource = WebMenu.simValues;		// bind XAML DataGrid
+			if (0 < OK.Settings.midiDevs.Count)
+			{
+				MIDI.Resume(Model, this, OK);
+				Init_mg();							// Midi Learn display
+			}
+			else Model.MidiStatus += "\nno MIDI configured";
 		}
 
 		private void Hyperlink_RequestNavigate(object sender,
@@ -57,53 +62,6 @@ namespace blekenbleu.SimHub_Remote_menu
 		private void DgSelect(object sender, RoutedEventArgs e)
 		{
 			Selected();
-		}
-
-		// handle all button events in one method
-		internal async void ButEvent(object sender, RoutedEventArgs e)
-		{
-			string butName = (e.OriginalSource as FrameworkElement).Name;
-
-			await EventHandler(butName, -1);
-		}
-
-		internal static void ClickHandle(string butName)	// used by ButEvent(), Process(MidiMessage)
-		{
-			Model.MidiStatus = " ";
-			switch(butName)
-			{
-				case "b0":
-					OK.Select(false);
-					break;
-				case "b1":
-					OK.Select(true);
-					break;
-				case "b2":
-					OK.Ment(1);
-					break;
-				case "b3":
-					OK.Ment(-1);
-					break;
-				case "b4":
-					OK.Swap();
-					break;
-				case "b5":
-					OK.SetDefault();
-					break;
-				case "SB":
-					OK.SliderButtton();
-					break;
-				default:
-                    WebMenu.Msg = "ClickHandle(): unconfigured click '{butName)'";
-					OK.OOpsMB();	// tested 1 Mar 2026
-					break;
-			}
-		}
-
-		// handle slider changes
-		private async void Slider_DragCompleted(object sender, System.Windows.Input.MouseButtonEventArgs e)
-		{
-			await EventHandler("SL", (int)(0.5 + 10 * SL.Value));
 		}
 	}
 }

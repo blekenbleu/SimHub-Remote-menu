@@ -8,133 +8,123 @@ namespace blekenbleu.SimHub_Remote_menu
 // !!! These must all be declared public for JsonConvert.SerializeObject() !!!
 	public class CarL
 	{
-		public string Name { get; set; }		// CarID (game name for Carl[0])
-		public List<string> Vlist { get; set; }	// property values	(game defaults for Carl[0])
+		public string Name;				// CarID (game name for Carl[0])
+		public List<string> vList;		// property values	(game defaults for Carl[0])
 	}
 
-	public class GameList
+	public class GameList																					//	gl
 	{
-		public List<CarL> cList;		// cList[0] is game Name + default per-car, then per-game property values
+		public List<string> rList;		// most recent per-car+game property values for this game
+		public List<CarL> cList;		// cList[0] is game Name + Default per-car+game property values
+										// other cList[] are CarID + current per-car property values
 	}
 
-	public class GamesList
+	public class PluginList																					//	data
 	{
 		public string Plugin;			// NCalcScripts/WebMenu.ini identifies itself as "WebMenu.file"
-		public List<string> pList;		// per-car, then per-game property names, from WebMenu.ini
-		public List<GameList> gList;
+		public List<string> pList;		// per-car, then per-game, property names, from WebMenu.ini				oldpList
+										// global property names, defaults and current values are in Settings
+		public List<GameList> gList;																		//	newList
 	}
 
 	public partial class WebMenu
 	{
-		GamesList data;
+		PluginList data;
 
-		// called in End()
-		public void Data()
+		bool Boop(string s)
 		{
-			data = new GamesList()
-			{
-				Plugin = "WebMenu",
-				gList = new List<GameList>() { },	// GameList @ slim.cs line 16
-				// property names
-				pList = new List<string> { }		// per-car, then per-game
-			};
-			for (int i = 0; i < gCount; i++)
-				data.pList.Add(simValues[i].Name);
+			Msg = s;
+			return true;
 		}
 
-		// Reconcile .json values with simValues based on .ini and Settings
-		private List<string> Reconcile(List<string> vList, int car)
-		{
-			List<string> New = new List<string> {};
-			// car[0] is per-game car default and per-game property values
-			int count = (0 == car) ? gCount : pCount;
-
-			if (count > simValues.Count)
-				count = simValues.Count;		// it happens 19 Feb 2025
-
-			for (int i = 0; i < count; i++)
-			{
-				int Index =  data.pList.FindIndex(j => j == simValues[i].Name);
-
-				if (-1 == Index || Index >= vList.Count)
-					New.Add(simValues[i].Default);
-				else New.Add(vList[Index]);	// reuse as many as possible
-			}
-			return New;
-		}
-
-		// load Slim .json and reconcile with CurrentCar-specific simValues from NCalcScripts/WebMenu.ini
+		// load Slim .json and reconcile with simValues from NCalcScripts/WebMenu.ini
 		// return true if path fails or unrecoverable JSON
 		// .ini may have added, deleted or moved properties among per-car, per-game and global
 		// .json may be e.g. obsolete format, out-of-date or bad because code bugs.
 		internal bool Load(string path)	// from NCalcScripts\WebMenu.ini 'WebMenu.file'
 		{
 			if (!File.Exists(path))
-				return true;
+				return Boop(" does not exist");
 
 			// this fails if GamesList is not all public
-			data = JsonConvert.DeserializeObject<GamesList>(File.ReadAllText(path));
-			if (null == data || null == data.pList || null == data.gList)
-				return true;
+			data = JsonConvert.DeserializeObject<PluginList>(File.ReadAllText(path));
+			if (null == data || 0 == data.pList?.Count || 0 == data.gList?.Count)
+				return Boop(" failed DeserializeObject()");
 
-			// Now, can only return false, meaning data fully reconciled to simValues
+			// Now, can only return false, meaning some data with which to work
+			string s = "";
+			int nullcarID = 0, nullgList = 0;
 
-			if (null == data.Plugin || "WebMenu" != data.Plugin) {
-				OOpa($"Slim.Load({path}) data.Plugin: '{data.Plugin}' != 'WebMenu'");
+			if ("WebMenu" != data?.Plugin) {
+				s += "'{data?.Plugin}' != 'WebMenu'";
 				data.Plugin = "WebMenu";	// user has at least been warned...
 			}
 
-			int nullcarID = 0;
-			int pcount = pCount;
-			int gcount = gCount;
-			int i, g, c;
-
-			if (gcount != data.pList.Count)
-				i = -1;
-			else for (i = 0; i < data.pList.Count; i++)
-				if (data.pList[i] != simValues[i].Name)
-					break;
-
-			if (i == gcount)
-				for (g = 0; g < data.gList.Count; g++)
-					if (null != data.gList[g].cList)
-					{
-						if (data.gList[g].cList.Count < 2 || data.gList[g].cList[0].Vlist.Count != gcount)
-						{ i--; break; }
-						else for (c = 0; c < data.gList[g].cList.Count; c++)
-								if (data.gList[g].cList[c].Vlist.Count != ((0 == c) ? gcount : pcount))
-								{ i--; g = data.gList.Count; break; }
-					}
-
-			if (i != gcount)
-			// repopulate car properties according to simValues
+			for (int i = 0; i < data.gList.Count; i++)					// all games
 			{
-				if (!set)	// already warned
-					OOpa($"Slim.Load({path}):  pList mismatch");
-				if (i != pcount)
-					for (i = 0; i < data.gList.Count; i++)					// all games
+				if (1 > data.gList[i].cList?.Count || 0 == data.gList[i].cList[0].Name?.Length)
+				{
+					nullgList++;
+					data.gList.RemoveAt(i--);
+					continue;
+				}
+
+				for (int c = 1; c < data.gList[i].cList.Count; c++)	// all cars in game
+					if (0 == data.gList[i].cList[c].Name?.Length)
 					{
-						if (null == data.gList[i].cList)
-							continue;
-						for (c = 0; c < data.gList[i].cList.Count; c++)	// all cars in game
-							if (null == data.gList[i].cList[c].Name)
-							{
-								nullcarID++;
-								data.gList[i].cList.RemoveAt(c--);
-							}
-							else data.gList[i].cList[c].Vlist = Reconcile(data.gList[i].cList[c].Vlist, c);
+						nullcarID++;
+						data.gList[i].cList.RemoveAt(c--);
 					}
-				data.pList = new List<string> {};
-				for (i = 0; i < gcount; i++)
-					data.pList.Add(simValues[i].Name);
+			}
+
+			if (0 < nullgList)
+			{
+				if (0 < s.Length)
+					s += "\n\t";
+				s += $"{nullgList} bad game Lists";
 			}
 			if (0 < nullcarID)
-				OOpa($"Slim.Load({path}): {nullcarID} null carIDs");
-
-			if (data.gList.Count < 1 || data.gList[0].cList.Count < 2)
-				OOpa($"Slim.Load({path}): empty data.gList");
+			{
+				if (0 < s.Length)
+					s += "\n\t";
+				s += $"{nullcarID} empty carIDs";
+			}	
+			if (0 < s.Length)
+				OOpa($"Slim.Load({path}):  " + s);
 
 			return false;
 		}	// Load()
+
+		bool SettingsFrom_simValues(string game, string carid)
+		{
+			bool change = carid != Settings.carid;
+
+			List<string> Name = new List<string> {};
+			List<string> Value = new List<string> {};
+			List<string> defaults = new List<string> {};
+			Settings.game = game;
+			Settings.carid = carid;
+			Settings.pcount = CarPropCount;
+			Settings.gcount = GamePropCount - CarPropCount;
+
+			for (int i = 0; i < simValues.Count; i++)
+ 				if (0 < simValues[i].Current?.Length)
+				{
+					if (i >= Settings.Value.Count || i >= Settings.defaults.Count
+					 || Settings.Value[i] != simValues[i].Current
+					 || Settings.defaults[i] != simValues[i].Default)
+						change = true;
+					Name.Add(string.Copy(simValues[i].Name));
+					Value.Add(string.Copy(simValues[i].Current));
+					defaults.Add(string.Copy(simValues[i].Default));
+				}
+			if (change)
+			{
+				Settings.Name = Name;
+				Settings.Value = Value;
+				Settings.defaults = defaults;
+			}
+			return change;
+		}
 	}		// class Slim
 }

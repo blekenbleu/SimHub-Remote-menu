@@ -28,15 +28,16 @@ namespace blekenbleu.SimHub_Remote_menu
 		// events to raise
 		readonly PropertyChangedEventArgs Bevent = new PropertyChangedEventArgs("ButtonVisibility");
 		readonly PropertyChangedEventArgs Cevent = new PropertyChangedEventArgs("ChangedVisibility");
+		readonly PropertyChangedEventArgs Devent = new PropertyChangedEventArgs("DGheight");
 		readonly PropertyChangedEventArgs Fevent = new PropertyChangedEventArgs("Forget");
-		readonly PropertyChangedEventArgs Nevent = new PropertyChangedEventArgs("SliderProperty");
+		readonly PropertyChangedEventArgs Mevent = new PropertyChangedEventArgs("MGheight");
 		readonly PropertyChangedEventArgs Sevent = new PropertyChangedEventArgs("SelectedProperty");
-		readonly PropertyChangedEventArgs SVevent = new PropertyChangedEventArgs("SliderVisibility");
-		readonly PropertyChangedEventArgs SLevent = new PropertyChangedEventArgs("SliderValue");
+		readonly PropertyChangedEventArgs SPevent = new PropertyChangedEventArgs("SliderProperty");
+		readonly PropertyChangedEventArgs SVevent = new PropertyChangedEventArgs("SliderValue");
 		readonly PropertyChangedEventArgs Tevent = new PropertyChangedEventArgs("Text");
 
 
-        private Visibility _bvis = Visibility.Hidden;	// until carID and game are defined
+		private Visibility _bvis = Visibility.Hidden;	// until carID and game are defined
 		public Visibility ButtonVisibility				// must be public for XAML Binding
 		{
 			get { return _bvis; }
@@ -46,6 +47,38 @@ namespace blekenbleu.SimHub_Remote_menu
 				{
 					_bvis = value;
 					PropertyChanged?.Invoke(this, Bevent);
+					// collapse (0) or expand (double.NaN) XAML datagrid "dg"
+					MGheight = 0;
+				}
+			}
+		}
+
+		private double _dgheight = 0;
+		public double DGheight
+		{
+			get { return _dgheight; }
+			set
+			{
+				if (_dgheight != value)
+				{
+					_dgheight = value;
+					PropertyChanged?.Invoke(this, Devent);
+				}
+			}
+		}
+
+		private double _mgheight = 0;
+		public double MGheight
+		{
+			get { return _mgheight; }
+			set
+			{
+				DGheight = (0 == value && Visibility.Hidden != _bvis) ? double.NaN : 0;
+				if (_mgheight != value)
+				{
+					_mgheight = value;
+					
+					PropertyChanged?.Invoke(this, Mevent);
 				}
 			}
 		}
@@ -60,6 +93,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				{
 					_cvis = value;
 					PropertyChanged?.Invoke(this, Cevent);
+
 				}
 			}
 		}
@@ -87,22 +121,8 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (_sval != value)
 				{
 					_sval = value;
-					PropertyChanged?.Invoke(this, SLevent);
-					HttpServer.SSEslide(SliderValue, SliderProperty);
-				}
-			}
-		}
-
-		private Visibility _svis = Visibility.Hidden;
-		public Visibility SliderVisibility		// must be public for XAML Binding
-		{
-			get { return _svis; }
-			set
-			{
-				if (_svis != value)
-				{
-					_svis = value;
 					PropertyChanged?.Invoke(this, SVevent);
+					HttpServer.SSEslide(SliderValue, SliderProperty);
 				}
 			}
 		}
@@ -149,8 +169,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (value != _slider_Property)
 				{
 					_slider_Property = value;
-					PropertyChanged?.Invoke(this, Nevent);
-					SliderVisibility = Visibility.Visible;
+					PropertyChanged?.Invoke(this, SPevent);
 					HttpServer.SSEslide(SliderValue, SliderProperty);
 				}
 			}
@@ -178,7 +197,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					_Text = value;
 					string s = SSEtext(true);
 
-                    HttpServer.SSErespond(s);
+					HttpServer.SSErespond(s);
 					PropertyChanged?.Invoke(this, Tevent);
 				}
 			}
@@ -199,5 +218,5 @@ namespace blekenbleu.SimHub_Remote_menu
 				}
 			}
 		}
-    }		// public class ViewModel
+	}		// public class ViewModel
 }

@@ -1,23 +1,24 @@
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
 	public partial class Control
 	{
-		SemaphoreSlim semaphore = new SemaphoreSlim(1);		// Only 1 task at a time
+		readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);		// Only 1 PayloadHandler() at a time
 
 		// WPF events by name;  MIDI events by payload
-		internal async Task EventHandler(string name, int payload)
+		internal async Task SemaphoreQueue(string name, int payload)
 		{
 			await semaphore.WaitAsync();
 			try
 			{
-				await Task.Run(() => PayloadHandler(name, payload));
+				PayloadHandler(name, payload);
 			}
 			catch
 			{
-                System.Windows.Forms.MessageBox.Show($"Remote-menu.EventHandler({name}, {payload})", "Exception");
+				System.Windows.Forms.MessageBox.Show($"WebMenu.SemaphoreQueue({name}, {payload})", "Exception");
 			}
 			finally
 			{
@@ -28,22 +29,36 @@ namespace blekenbleu.SimHub_Remote_menu
 		void PayloadHandler(string name, int payload)
 		{
 			if ("MIDI" == name)
-				ProcessMIDI(payload);
+				ProcessMIDI(payload);		// Control.midi.cs
 			else if (-1 == payload)			// WPF RoutedEvent
 			{
-				if ("bm" == name)			// [MIDI learn] button
+				if ("bm" == name)			// [MIDI learn] Button
 					NotEarn();
 				else if (Earn)				// learning events
 					Learn(name);
-				else ClickHandle(name);		// "live" events
+				else OK.ClickHandle(name);	// Control.xaml.cs "live" events
 			}
 			else if (Earn)					// System.Windows.Input.Mouse event
 			{								// learn slider map
 				if (button)					// only 0 or 127 values?
-					Model.MidiStatus = "\nMIDI control >>only<< for button; ignored";
+					Model.MidiStatus = "\nMIDI control {payload:X8} >>only<< for Button; ignored";
 				else ListClick(name);		// Control.midi.cs
 			}
 			else OK.FromSlider(0.1 * payload);
+		}
+
+		// handle all Button events in one method
+		internal async void ButEvent(object sender, RoutedEventArgs e)
+		{
+			string butName = (e.OriginalSource as FrameworkElement).Name;
+
+			await SemaphoreQueue(butName, -1);
+		}
+
+		// handle slider changes
+		private async void Slider_DragCompleted(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+			await SemaphoreQueue("SL", (int)(0.5 + 10 * SL.Value));
 		}
 	}
 }

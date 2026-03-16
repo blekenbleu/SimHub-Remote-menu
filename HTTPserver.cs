@@ -8,6 +8,8 @@ namespace blekenbleu.SimHub_Remote_menu
 {
 	partial class HttpServer	// works in .NET Framework 4.8 WPF User Control library (SimHub plugin)
 	{
+		static Control View;
+
 		// adapted from https://github.com/blekenbleu/TcpMultiClient
 		internal static void Start(Control v)
 		{
@@ -160,7 +162,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		static string Table ()
 		{
-			string data = head + HTMLtable(WebMenu.simValues) + end;
+			string data = head + HTMLtable() + end;
 			string sw =
 			"HTTP/1.1 200 OK\n"
 			+ "Content-Type:text/html; charset=UTF-8\n"
