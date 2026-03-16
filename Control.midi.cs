@@ -12,7 +12,7 @@ namespace blekenbleu.SimHub_Remote_menu
 	{
 		// index xaml event strings by devMessages
 		internal static SortedList<int, string> click = new SortedList<int, string>() {};
-		static int recent, forget;					// MidiDev messages with data2 masked out
+		static int recent, _forget;					// MidiDev messages with data2 masked out
 		internal static bool busy;
 		static bool button, _learn = false;			// state variables
 		internal static bool changed;
@@ -23,8 +23,24 @@ namespace blekenbleu.SimHub_Remote_menu
 			get { return _learn; }
 			set {
 					_learn = value;
-					Model.Forget = _learn ? Visibility.Visible : Visibility.Hidden;
+					if (!_learn)
+						Model.Forget = Visibility.Hidden;
+					Model.MGheight = _learn ? double.NaN : 0;
 				}
+		}
+
+		static int forget
+		{
+			get { return _forget; }
+			set
+			{
+				_forget = value;
+				if (0 == _forget)
+				{
+					Model.Forget = Visibility.Hidden;
+					again = "";
+				}
+			}
 		}
 
 		internal void Add(int recent, string bName)
@@ -43,18 +59,19 @@ namespace blekenbleu.SimHub_Remote_menu
 			else if (click.ContainsKey(recent))
 			{
 				Model.MidiStatus = $"\nMIDI {recent:X8} already click '{MIDI.buttonList[click[recent]]}';  first Forget it";
+				Model.Forget = Visibility.Visible;
 				forget = recent;
 			}
 			else if (click.ContainsValue(bName) && again != bName)
 			{
 				Model.MidiStatus = $"\n'{MIDI.buttonList[bName]}' already in click list;  click again to also add for"
 								 + $"{recent:X8}\n -or- Forget to remove current '{MIDI.buttonList[bName]}'";
+				Model.Forget = Visibility.Visible;
 				again = bName;
 			}
 			else {
 				Add(recent, bName);
 				Model.MidiStatus = $"\n'{MIDI.buttonList[bName]}' {recent:X8} added to click list";
-				again = "";
 				forget = recent = 0;
 			}
 		}
@@ -91,11 +108,10 @@ namespace blekenbleu.SimHub_Remote_menu
 					}
 					changed = true;
 					forget = 0;
-					again = "";
 				}
 			}
 			else if (!button)
-				Model.MidiStatus = "\nMIDI control {recent:X8} >>only<< for slider;  ignored";
+				Model.MidiStatus = $"\nMIDI control {recent:X8} >>only<< for slider;  ignored";
 			else ListClick(bName);
 		}
 
@@ -103,10 +119,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			Earn = !Earn;
 			if (!Earn)
-			{
 				forget = 0;
-				again = "";
-			}
 			Model.MidiStatus = (Earn && MIDI.Start(Model, this)) ? "\n\twaiting for MIDI input" : " ";
 		}
 
@@ -146,8 +159,12 @@ namespace blekenbleu.SimHub_Remote_menu
 					{
 						Model.MidiStatus = $"\nProcess({MidiMessage:X8}) MIDI already in click list for {MIDI.buttonList[click[recent]]};  Forget?";
 						forget = recent;
+						Model.Forget  = Visibility.Visible;
 					}
-					else Model.MidiStatus = $"\nclick in UI to Learn for ({MidiMessage:X8})";
+					else {
+						Model.MidiStatus = $"\nclick in UI to Learn for ({MidiMessage:X8})";
+						forget = 0;
+					}
 				}
 			}
 			else if (click.ContainsKey(latest))

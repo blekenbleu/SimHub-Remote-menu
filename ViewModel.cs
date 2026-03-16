@@ -48,7 +48,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					_bvis = value;
 					PropertyChanged?.Invoke(this, Bevent);
 					// collapse (0) or expand (double.NaN) XAML datagrid "dg"
-					DGheight = (Visibility.Hidden == _bvis) ? 0 : (Visibility.Hidden == _fvis) ? double.NaN : 0;
+					MGheight = 0;
 				}
 			}
 		}
@@ -73,9 +73,11 @@ namespace blekenbleu.SimHub_Remote_menu
 			get { return _mgheight; }
 			set
 			{
+				DGheight = (0 == value && Visibility.Hidden != _bvis) ? double.NaN : 0;
 				if (_mgheight != value)
 				{
 					_mgheight = value;
+					
 					PropertyChanged?.Invoke(this, Mevent);
 				}
 			}
@@ -106,8 +108,6 @@ namespace blekenbleu.SimHub_Remote_menu
 				{
 					_fvis = value;
 					PropertyChanged?.Invoke(this, Fevent);
-					DGheight = (Visibility.Hidden == _bvis) ? 0 : (Visibility.Hidden == _fvis) ? double.NaN : 0;
-					MGheight = (Visibility.Hidden == _bvis) ? 0 : (Visibility.Hidden == _fvis) ? 0 : double.NaN;
 				}
 			}
 		}

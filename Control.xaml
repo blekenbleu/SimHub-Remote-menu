@@ -18,7 +18,7 @@
 					<TextBlock FontWeight="Medium" FontSize="11" Height="20" Text="Forget"/>
 			</Button>
 			<Button x:Name="bm" Click="ButEvent" Height="20" Background="Gray" Width="65"
-					Margin="5,0,0,0" Padding="5">
+				Visibility="{Binding ButtonVisibility}" Margin="5,0,0,0" Padding="5">
 				<TextBlock Text="MIDI learn"/>
 			</Button>
 			<TextBlock Text=" changed" Height="20" Width="55" Margin="5,0,0,0"
