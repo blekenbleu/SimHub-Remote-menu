@@ -16,9 +16,8 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			for (int p = 0; p < Settings.Name.Count; p++)
 			{
-				string defval = p < GamePropCount ? data.gList[gndx].cList[0].vList[p] : Settings.defaults[p];
 				if (simValues[p].Current != Settings.Value[p]
-					 || simValues[p].Default != defval)
+				 || simValues[p].Default != (p < GamePropCount ? data.gList[gndx].cList[0].vList[p] : Settings.defaults[p]))
 				{
 					changed = true;
 					break;
@@ -36,8 +35,8 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			Control.Model.SliderProperty = HttpServer.SliderProperty = simValues[slider].Name;
 			/* slider View.SL.Maximum = 100; scale property to it, based on Steps[slider]
-			 ; Steps	   Guestimated range
-			 ; 1  (0.01)	0 - 2
+			 ; Steps		Guestimated range
+			 ; 1 (0.01)		0 - 2
 			 ; 10 (0.10)	0 - 10
 			 ; 100 (1)		0 - 100
 			 ; 1000 (10)	0 - 1000
@@ -72,7 +71,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			// simValues.Current gets data.gList[gndx].rList in (Init)
 			// Update game default, game change, car change values 
 			List<string> vList = new List<string> {};	// current game
-			List<string> Car = new List<string> {};     // current car (may be new)
+			List<string> Car = new List<string> {};	 // current car (may be new)
 
 			for (int i = 0; i < GamePropCount; i++)
 			{
@@ -83,7 +82,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					write = true;
 				if (i < CarPropCount)
 					Car.Add(Current);
-				vList.Add(Current);    // Current per-car+game
+				vList.Add(Current);	// Current per-car+game
 
 				// game defaults
 				if (data.gList[gndx].cList[0].vList[i] != Default)
@@ -97,7 +96,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			if (0 > (cndx = data.gList[gndx].cList.FindIndex(c => c.Name == CurrentCar)))
 			{
-				write = true;           // add car to game
+				write = true;		// add car to game
 				cndx = data.gList[gndx].cList.Count;
 				data.gList[gndx].cList.Add(new CarL { Name = CurrentCar, vList = Car });
 			}

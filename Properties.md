@@ -1,19 +1,21 @@
-## WebMenu property handling
-This paradigm is largely inherited from the [JSONio](https://github.com/blekenbleu/JSONio) plugin..  
+[*back*](README.md#resources)
 
-There are 3 types of properties, determined by [WebMenu.ini](https://github.com/blekenbleu/SimHub-Remote-menu/blob/main/NCalcScripts/WebMenu.ini) content
+## WebMenu property handling
+This paradigm is evolved from that in [JSONio](https://github.com/blekenbleu/JSONio) plugin..  
+
+3 types of properties are defined by [WebMenu.ini](https://github.com/blekenbleu/SimHub-Remote-menu/blob/main/NCalcScripts/WebMenu.ini) content
 - per-car
 - per-game
 - global  
-Global properties are stored in SimHub Settings for plugins.  
+Global properties are stored in SimHub `DataPluginSettings`.  
 `End()` writes other properties to e.g. `WebManu.json` during game changes;  
 
-Users may change [WebManu.ini](https://github.com/blekenbleu/SimHub-Remote-menu/blob/main/NCalcScripts/WebMenu.ini) between games or plugin relaunches...
+Users may change [WebManu.ini](https://github.com/blekenbleu/SimHub-Remote-menu/blob/main/NCalcScripts/WebMenu.ini) between game changes or SimHub relaunches...
 
-Each property will have 3 values, all numeric
-- current - Per-car and Per-game 
-- previous - one set saved in SimHub Settings, along with globals
-- default - saved across games:  globals in Settings, others in `WebManu.json`
+Each property may have 3 values, all numeric
+- Current - Per-car and Per-game 
+- Previous - one set saved from Current into SimHub Settings, along with globals
+- Default - saved across games:  globals in Settings, others in `WebMenu.json`
 
 Given many possible games and cars, lots of settings may accumulate.  
 Instead of storing dictionary of all properties internally to SimHub,  
@@ -23,8 +25,13 @@ This facilitates sharing settings among users e.g. sharing a ShakeIt configurati
 New (to WebMenu) cars and games inherit most recent property values...  
 Property value changes during games update in-memory lists.  
 
-A new car for new or unchanged game will use most recent values as Current.
-- a new car for changed game will set that game's defaults as Current.
+`Init()` restores Current per-game values, if known, from `data.gList[gndx].rList`.  
+In `CarChange()`, Current values become Previous,
+then per-car properties are restored to Current,  
+if available, from `data.gList[gndx].cList[cndx].vlist`;  
+and also set as `Settings.Value`, for [`Changed()`](https://github.com/blekenbleu/SimHub-Remote-menu/blob/main/Json.cs#L10) to determine whether Current are subsequently changed.  
+A new car for a new game will use most recent values as Current.
+- a new car for known game will get that game's defaults as Current.
 - Otherwise, *most-recent* values become **Previous**.
 
 However, .ini and .json files may change at any time...  

@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
-	// programatically define DataGrid columns
+	// programatically define DataGrid columns, in List<Values> simValues
 	// https://wpf-tutorial.com/datagrid-control/custom-columns/
 	public class Values : INotifyPropertyChanged	// https://stackoverflow.com/questions/26871641/how-to-refresh-a-window-in-c-wpf
 	{

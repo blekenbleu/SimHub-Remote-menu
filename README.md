@@ -28,8 +28,6 @@ HTML table updates should have lower processing overhead than graphical overlay.
 	 could not get [ReferencePath](https://learn.microsoft.com/en-us/troubleshoot/developer/visualstudio/project-build/troubleshooting-broken-references)
 	 working;&nbsp; copied JSONio `HintPath`s  
 	- SimHub confused `WebMenu` with `JSONio` plugin until renaming `class JSONio`.  
-	`KSHmenu.ChangeProperties` needs its own `ExternalScript.CarChange` event trigger setting  
-	in **SimHub Controls and events**.
 - [**TcpMultiClient**](https://github.com/blekenbleu/TcpMultiClient) - multiple `keep-alive` TCP connections
 	- TcpListener AcceptTcpClientAsync, ConcurrentDictionary, NetworkStream WriteAsync, StreamReader
 	- a better starting point and learning exercise than either:
@@ -49,7 +47,7 @@ HTML table updates should have lower processing overhead than graphical overlay.
 - current HTML scroll and slider set with car changes, not waiting for WPF menu open
 - [multiple MIDI input device support](SemaphoreSlim.md) *with learning* to make `<table>` property value changes
 - maintain client web sessions across game changes, when SimHub does not exit.
-- *to do*:&nbsp; [improve MIDI click list handling](MIDI.md)
+- [improve MIDI click list handling](MIDI.md)
 
 ## bug
 - `Expression error:The type initializer for 'Jint.Native.Global.GlobalObject' threw an exception.`

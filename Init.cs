@@ -7,7 +7,9 @@ namespace blekenbleu.SimHub_Remote_menu
 	public partial class WebMenu : IPlugin
 	{
 		int CarPropCount = 0, GamePropCount = 0;
-		bool OOpa(string msg)   // defer MessageBox.Show() until GetWPFSettingsControl()
+		List<string> CarProp, GameProp; 
+
+		bool OOpa(string msg)		// defer MessageBox.Show() until GetWPFSettingsControl()
 		{
 			Msg += msg + "\n";
 			return true;
@@ -21,13 +23,14 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// <param name="pluginManager"></param>
 		public void Init(PluginManager pluginManager)
 		{
-			CurrentCar = null;          // otherwise whatever was set before game change
+			CurrentCar = "";		// otherwise whatever was set before game change
 			once = true;
+			Steps = new List<int> { };
+			simValues = new List<Values> {};
 
 			// restore Properties from settings
 			// https://github.com/blekenbleu/SimHub-Remote-menu/blob/main/Properties.md
-			Settings = this.ReadCommonSettings<DataPluginSettings>(
-												"GeneralSettings", () => new DataPluginSettings());
+			Settings = this.ReadCommonSettings("GeneralSettings", () => new DataPluginSettings());
 			// Load existing slim-formatted JSON file;  Populate() may grab values from it
 			// its values for configured properties are supposed more current than .ini
 			if (write = Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()))
@@ -52,6 +55,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			// Recover simValues from Settings or JSON
 			for (int v = 0; v < simValues.Count; v++)
 			{
+				int Index;
 				if (0 <= (Index = Settings.Name.FindIndex(s => s == simValues[v].Name)))
 				{
 					simValues[v].Current = simValues[v].Previous = Settings.Value[Index];
@@ -86,7 +90,7 @@ namespace blekenbleu.SimHub_Remote_menu
 					Plugin = "WebMenu",
 					pList = new List<string> {},
 					gList = new List<GameList>() {}					// @ slim.cs line 15
-                };
+				};
 				update = true;
 			}
 			else if (GamePropCount != data.pList.Count)
