@@ -21,18 +21,10 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// <param name="pluginManager"></param>
 		public void Init(PluginManager pluginManager)
 		{
-			List<string> CarProp = new List<string> {}, GameProp = new List<string> {};
-			int Index;
+			CurrentCar = null;          // otherwise whatever was set before game change
+			once = true;
 
-			// forget previous game
-			Gname = CurrentCar = "";			// CarChange() will set
-			once = true;						// some CarChange() message only once
-			// write = true wants slim-formatted JSON file written in End()
-			set = false;						// true wants Settings saved in End()
-			Steps = new List<int>() {};			// for Populate()
-			simValues = new List<Values>();
-
-			// restore Properties from Settings
+			// restore Properties from settings
 			// https://github.com/blekenbleu/SimHub-Remote-menu/blob/main/Properties.md
 			Settings = this.ReadCommonSettings<DataPluginSettings>(
 												"GeneralSettings", () => new DataPluginSettings());
