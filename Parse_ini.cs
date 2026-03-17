@@ -5,7 +5,8 @@ namespace blekenbleu.SimHub_Remote_menu
 {
     public partial class WebMenu : IPlugin
     {
-		void Parse_ini(PluginManager pluginManager, ref List<string> CarProps, ref List<string> GameProps)
+        // reconcile WebMenu.ini and Settings
+        void Parse_ini(PluginManager pluginManager, ref List<string> CarProps, ref List<string> GameProps)
 		{
 			// property and setting names, default values and steps from WebMenu.ini
 			string ds = pluginManager.GetPropertyValue(Myni + "properties")?.ToString();
@@ -25,7 +26,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (CarProps.Count != values.Count || CarProps.Count != steps.Count)
 					OOpa($"{CarProps.Count} per-car properties;  "
 						+$"{values.Count} values;  {steps.Count} steps");
-				Populate(CarProps, values, steps, 0, Settings.pcount);
+				Populate(CarProps, values, steps);
 			} else CarProps = new List<string>() {};
 			CarPropCount = simValues.Count;
 
@@ -46,7 +47,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (GameProps.Count != values.Count || GameProps.Count != steps.Count)
 					OOpa($"{GameProps.Count} gameprops;  {values.Count} gamevals;"
 									+ $"  {steps.Count} gamesteps");
-				Populate(GameProps, values, steps, Settings.pcount, Settings.gcount);
+				Populate(GameProps, values, steps);
 			} else GameProps = new List<string>() {};
 			GamePropCount = simValues.Count;
 
@@ -68,8 +69,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (GlobalProps.Count != values.Count || GlobalProps.Count != steps.Count)
 					OOpa($"{GlobalProps.Count} settings;  {values.Count} setvals;"
 									+ $"  {steps.Count} setsteps");
-				int start = Settings.pcount + Settings.gcount;
-				Populate(GlobalProps, values, steps, start, Settings.Name.Count - start);
+				Populate(GlobalProps, values, steps);
 			}
 		}
 	}

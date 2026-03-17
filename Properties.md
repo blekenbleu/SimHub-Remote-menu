@@ -41,8 +41,8 @@ However, .ini and .json files may change at any time...
 - SimHub's internally saved instance of global and most recent car property values  
 	is unlikely to change between sessions.
 
-WebMenu.Init() sorts incompatibilities among .ini, .json and internally saved properties  
-to populate simValues and Steps.
+WebMenu.Init() reconciles differences among .ini, .json  
+and internally saved properties when [populating `simValues` and `Steps`](Populate.cs).
 - In all cases, .ini is considered definitive for *property type* classifications.
 - .ini values become defaults for new properties
 - internally saved instance *values* are considered definitive for global and current car

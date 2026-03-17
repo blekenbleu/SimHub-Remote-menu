@@ -17,8 +17,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		static WebMenu OK;
 		internal static ViewModel Model;			// reference XAML controls
 		internal byte Selection;					// changes only in WebMenu.Select() on UI thread
-		internal static string version = "1.96";
-		//internal ContentControl MyControl = new ContentControl();
+		internal static string version = "1.97";
 
 		public Control() {							// called before simValues are initialized
 			Model = new ViewModel(this);

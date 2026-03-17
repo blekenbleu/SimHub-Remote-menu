@@ -2,8 +2,8 @@ using System.Collections.Generic;
 
 namespace blekenbleu.SimHub_Remote_menu
 {
-    public partial class WebMenu
-    {
+	public partial class WebMenu
+	{
 		void UpdateSlim()
 		{
 			// sort changed properties into potentially empty data PluginList
@@ -20,52 +20,46 @@ namespace blekenbleu.SimHub_Remote_menu
 				newList.Add(gl);
 			}
 
-			int which = -1, where = -1, gc = data.gList.FindIndex(s => s.cList[0].Name == Settings.game);
+			int c, gi = data.gList.FindIndex(s => s.cList[0].Name == Settings.game);
 			List<int> n = new List<int> {};
 
-			for (int i = 0; i < GamePropCount; i++)	// sort collected properties
+			for (int i = 0; i < GamePropCount; i++)	// collect JSON properties
 			{
-				int pi = data.pList.FindIndex(s => s == simValues[i].Name);
-				
-				n.Add(pi);
 				// seek values for each simValues[i].Name
-				if (0 <= pi)
-				{
-					which = 0;
-					where = pi;
-				}
-				else if (0 <= (pi = Settings.Name.FindIndex(s => s == simValues[i].Name)))
-				{					// previously a global
-					which = 1;
-					where = pi;
-				}
-				else {				// snag .ini defaults
-					which = 2;
-					where = i;
-				}
+				int g, pi = data.pList.FindIndex(s => s == simValues[i].Name);
+				
+				n.Add(pi);		// data.pList Name indices in simValues for per-game
 
-				if (0 == which)
-					for (int g = 0; g < data.gList.Count; g++)
-						for (int j = 0; j < data.gList[g].cList.Count; j++)
-							newList[g].cList[j].vList.Add(string.Copy(data.gList[g].cList[j].vList[where]));
-				else if (1 == which)
-					for (int g = 0; g < data.gList.Count; g++)
-						for (int j = 0; j < data.gList[g].cList.Count; j++)
-							newList[g].cList[j].vList.Add(string.Copy(Settings.defaults[where]));
-				else for (int g = 0; g < data.gList.Count; g++)
-					for (int j = 0; j < data.gList[g].cList.Count; j++)
-						newList[g].cList[j].vList.Add(string.Copy(simValues[i].Default));
+				if (0 <= pi)	// found in JSON?
+					for (g = 0; g < data.gList.Count; g++)
+						for (c = 0; c < data.gList[g].cList.Count; c++)
+							if (0 == c || i < CarPropCount)
+								newList[g].cList[c].vList.Add(string.Copy(data.gList[g].cList[c].vList[pi]));
+
+				// previously a global?
+				else if (0 <= (pi = Settings.Name.FindIndex(s => s == simValues[i].Name)))
+					for (g = 0; g < data.gList.Count; g++)
+						for (c = 0; c < data.gList[g].cList.Count; c++)
+							if (0 == c || i < CarPropCount)
+								newList[g].cList[c].vList.Add(string.Copy(Settings.defaults[pi]));
+
+				// new property: use .ini defaults
+				else for (g = 0; g < data.gList.Count; g++)
+						for (c = 0; c < data.gList[g].cList.Count; c++)
+							if (0 == c || i < CarPropCount)
+								newList[g].cList[c].vList.Add(string.Copy(simValues[i].Default));
 			}
 
 			// set per-game most recent property value lists
-			int c = data.gList[gc].cList.FindIndex(s => s.Name == Settings.carid);
+			// Settings.carid index into JSON
+			c = 0 > gi || 0 == Settings.carid.Length ? -1 : data.gList[gi].cList.FindIndex(s => s.Name == Settings.carid);
 			for (int i = 0; i < newList.Count; i++)
-				for (int j = 0; j < GamePropCount; j++)
+				for (int g = 0; g < GamePropCount; g++)
 					newList[i].rList.Add(string.Copy(
-						(0 <= n[j] && j < data.gList[n[j]].rList?.Count) ?
-							data.gList[n[j]].rList[j] :
-						((i == gc && 1 <= c) || 2 > newList[i].cList.Count) ?
-							Settings.Value[j] : newList[i].cList[1].vList[j])
+						(0 <= n[g] && g < data.gList[n[g]].rList?.Count) ?
+							data.gList[n[g]].rList[g] :
+						((i == gi && 1 <= c) || 2 > newList[i].cList.Count) ?
+							Settings.Value[g] : newList[i].cList[1].vList[g])
 					);
 			data.gList = newList;
 		}

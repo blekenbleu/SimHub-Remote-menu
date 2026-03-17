@@ -36,7 +36,7 @@ namespace blekenbleu.SimHub_Remote_menu
 			if (write = Load(path = pluginManager.GetPropertyValue(Myni + "file")?.ToString()))
 				OOpa($"Load({path}): " + Msg);
 
-			// Populate() simValues, CarProps, GameProps, iniDefaults
+			// Populate() simValues, CarProps, GameProps, iniDefaults from Settings and .ini
 			Parse_ini(pluginManager, ref CarProp, ref GameProp);
 
 			if (0 == simValues.Count)
@@ -46,23 +46,24 @@ namespace blekenbleu.SimHub_Remote_menu
 				return;
 			}
 
-			if (0 < pluginManager?.GameName.Length)
-				Settings.game = pluginManager.GameName;
-			if (0 < Settings.game?.Length) 				// Relevant game values from JSON
+            // now, reconcile JSON data with simValues
+            if (0 < pluginManager?.GameName.Length)
+		 	{
+				if (Settings.game != pluginManager.GameName)
+				{
+					Settings.carid = "";					// don't force a carid into GameName
+					Settings.game = pluginManager.GameName;
+				}
 				gndx = data.gList.FindIndex(g => g.cList[0].Name == pluginManager.GameName);
+			}
 			else gndx = -1;
 
-			// Recover simValues from Settings or JSON
-			for (int v = 0; v < simValues.Count; v++)
+            if (0 <= gndx)						// Recover Current and Default simValues from JSON
+				for (int v = 0; v < simValues.Count; v++)
 			{
 				int Index;
-				if (0 <= (Index = Settings.Name.FindIndex(s => s == simValues[v].Name)))
-				{
-					simValues[v].Current = simValues[v].Previous = Settings.Value[Index];
-					if (Index < Settings.defaults.Count)
-						simValues[v].Default = Settings.defaults[Index];
-				}
-				if (0 > gndx || 0 > (Index = data.pList.FindIndex(s => s == simValues[v].Name)))
+
+				if (0 > (Index = data.pList.FindIndex(s => s == simValues[v].Name)))
 					continue;
 				
 				if (Index < data.gList[gndx].cList[0].vList.Count)
@@ -81,6 +82,7 @@ namespace blekenbleu.SimHub_Remote_menu
 
 			// at this point, simValues has all properties from .ini
 			// updated from matching Settings or JSON
+			// Now, possibly update Settings or JSON from simValues
 			bool update = false;
 
 			if (write)												// bad Load()?
@@ -95,14 +97,19 @@ namespace blekenbleu.SimHub_Remote_menu
 			}
 			else if (GamePropCount != data.pList.Count)
 				update = true;
-			else for (int i = 0; i < GamePropCount && !update; i++)
-				if (simValues[i].Name != data.pList[i])
-					update = true;
+			else
+			{
+				for (int i = 0; i < GamePropCount; i++)
+					if (simValues[i].Name != data.pList[i])
+					{
+						update = true;
+						break;
+					}
 
-			for (int i = 0; i < data.gList.Count && !update; i++)
-				if (data.gList[i].rList?.Count != GamePropCount)
-					update = true;
-
+				for (int i = 0; i < data.gList.Count && !update; i++)
+					if (data.gList[i].rList?.Count != GamePropCount)
+						update = true;
+			}
 			if (update)												// all GameLists may be out of sync
 			{
 				UpdateSlim();
@@ -119,7 +126,7 @@ namespace blekenbleu.SimHub_Remote_menu
 				if (simValues[i].Name != Settings.Name[i])
 					update = true;
 
-			if (update) // recreate Settings from simValues; may not get saved...
+			if (update) // synch Settings from simValues; may not get saved...
 				SettingsFrom_simValues(Settings.game, Settings.carid);
 
 			// Declare available properties

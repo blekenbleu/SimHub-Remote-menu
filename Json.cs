@@ -15,14 +15,13 @@ namespace blekenbleu.SimHub_Remote_menu
 				return changed;
 
 			for (int p = 0; p < Settings.Name.Count; p++)
-			{
 				if (simValues[p].Current != Settings.Value[p]
-				 || simValues[p].Default != (p < GamePropCount ? data.gList[gndx].cList[0].vList[p] : Settings.defaults[p]))
+				 || simValues[p].Default != Settings.defaults[p])
 				{
 					changed = true;
 					break;
 				}
-			}
+
 			Control.Model.ChangedVisibility = changed ? Visibility.Visible : Visibility.Hidden;
 			return changed;
 		}

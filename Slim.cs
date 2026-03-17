@@ -97,32 +97,35 @@ namespace blekenbleu.SimHub_Remote_menu
 
 		bool SettingsFrom_simValues(string game, string carid)
 		{
-			bool change = carid != Settings.carid;
+			bool change = 0 == Settings.carid.Length || carid != Settings.carid
+					|| Settings.game != game || Settings.pcount != CarPropCount
+					|| Settings.gcount != GamePropCount - CarPropCount;
 
 			List<string> Name = new List<string> {};
 			List<string> Value = new List<string> {};
 			List<string> defaults = new List<string> {};
-			Settings.game = game;
-			Settings.carid = carid;
-			Settings.pcount = CarPropCount;
-			Settings.gcount = GamePropCount - CarPropCount;
 
 			for (int i = 0; i < simValues.Count; i++)
- 				if (0 < simValues[i].Current?.Length)
-				{
-					if (i >= Settings.Value.Count || i >= Settings.defaults.Count
-					 || Settings.Value[i] != simValues[i].Current
-					 || Settings.defaults[i] != simValues[i].Default)
-						change = true;
-					Name.Add(string.Copy(simValues[i].Name));
-					Value.Add(string.Copy(simValues[i].Current));
-					defaults.Add(string.Copy(simValues[i].Default));
-				}
+			{
+				if (i >= Settings.Value.Count || i >= Settings.defaults.Count
+				 || Settings.Value[i] != simValues[i].Current
+				 || Settings.defaults[i] != simValues[i].Default)
+					change = true;
+				Name.Add(string.Copy(simValues[i].Name));
+				Value.Add(string.Copy(simValues[i].Current));
+				defaults.Add(string.Copy(simValues[i].Default));
+			}
+
 			if (change)
 			{
 				Settings.Name = Name;
 				Settings.Value = Value;
 				Settings.defaults = defaults;
+				Settings.game = game;
+				if (0 < carid.Length)
+					Settings.carid = carid;
+				Settings.pcount = CarPropCount;
+				Settings.gcount = GamePropCount - CarPropCount;
 			}
 			return change;
 		}
