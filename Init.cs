@@ -26,7 +26,8 @@ namespace blekenbleu.SimHub_Remote_menu
 			CurrentCar = "";		// otherwise whatever was set before game change
 			once = true;
 			Steps = new List<int> { };
-			simValues = new List<Values> {};
+			simValues = new List<Values> { };
+			joy1 = 0;
 
 			// restore Properties from settings
 			// https://github.com/blekenbleu/SimHub-Remote-menu/blob/main/Properties.md

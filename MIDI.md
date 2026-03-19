@@ -10,6 +10,7 @@ Directly support MIDI device inputs for controlling property change actions.
 SimHub **Controls and events** handles **Controllers** joystick button, but not axis events.
 ### To do:
 - Stop unused **MIDI IN** (`mMidiIn`) devices after **MIDI learn**
+- enable deleting listed buttons
 - Handle joystick axis for Slider
 
 ### Done:

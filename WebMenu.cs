@@ -1,5 +1,6 @@
 ﻿using GameReaderCommon;
 using SimHub.Plugins;
+using System.Collections.Generic;
 using System.Windows.Media;
 
 namespace blekenbleu.SimHub_Remote_menu
@@ -56,6 +57,7 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// </summary>
 		public string LeftMenuTitle => "WebMenu " + Control.version;
 
+		int joy1 = 0;
         /// <summary>
         /// Called one time per game data update, contains all normalized game data,
         /// raw data are intentionnally "hidden" under a generic object type (plugins SHOULD NOT USE)
@@ -66,8 +68,20 @@ namespace blekenbleu.SimHub_Remote_menu
         public void DataUpdate(PluginManager pluginManager, ref GameData data)
 		{
 			string cid = data?.NewData?.CarId, gid = pluginManager?.GameName;
-			
-			if (0 < cid?.Length && cid != CurrentCar && 0 < gid?.Length && 0 < simValues.Count) 
+            if (joy1 >= 0) // in my test, JoystickPlugin did not appear until 15 iterations
+            {
+				if (20 < ++joy1)
+				{
+					List<string> foo = pluginManager.GetAllPropertiesNames().FindAll(s => s.StartsWith("JoystickPlugin."));
+					if (0 < foo.Count)
+					{
+						Msg = $"Init():  {foo.Count} properties";
+						joy1 = -1;
+					}
+				} else if (50 < joy1)
+                    joy1 = -1;
+            }
+            if (0 < cid?.Length && cid != CurrentCar && 0 < gid?.Length && 0 < simValues.Count) 
 				CarChange(cid, gid);                // disable popup
 		}
 

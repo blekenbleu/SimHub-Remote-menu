@@ -48,6 +48,7 @@ HTML table updates should have lower processing overhead than graphical overlay.
 - [multiple MIDI input device support](SemaphoreSlim.md) *with learning* to make `<table>` property value changes
 - maintain client web sessions across game changes, when SimHub does not exit.
 - [improve MIDI click list handling](MIDI.md)
+- To Do:&nbsp; [joystick click list handling](DirectInput.md)
 
 ## bug
 - `Expression error:The type initializer for 'Jint.Native.Global.GlobalObject' threw an exception.`
