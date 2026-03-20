@@ -11,7 +11,7 @@ namespace blekenbleu.SimHub_Remote_menu
 	public partial class WebMenu : IPlugin, IDataPlugin, IWPFSettingsV2
 	{
 		public DataPluginSettings Settings;
-        public string NewCar = "false";
+		public string NewCar = "false";
 
 		internal static string Msg = "";
 
@@ -57,39 +57,31 @@ namespace blekenbleu.SimHub_Remote_menu
 		/// </summary>
 		public string LeftMenuTitle => "WebMenu " + Control.version;
 
-		int joy1 = 0;
-        /// <summary>
-        /// Called one time per game data update, contains all normalized game data,
-        /// raw data are intentionnally "hidden" under a generic object type (plugins SHOULD NOT USE)
-        /// This method is on the critical path, must execute as fast as possible and avoid throwing any error
-        /// </summary>
-        /// <param name="pluginManager"></param>
-        /// <param name="data">Current game data, including current and previous data frames.</param>
-        public void DataUpdate(PluginManager pluginManager, ref GameData data)
+		/// <summary>
+		/// Called one time per game data update, contains all normalized game data,
+		/// raw data are intentionnally "hidden" under a generic object type (plugins SHOULD NOT USE)
+		/// This method is on the critical path, must execute as fast as possible and avoid throwing any error
+		/// </summary>
+		/// <param name="pluginManager"></param>
+		/// <param name="data">Current game data, including current and previous data frames.</param>
+		public void DataUpdate(PluginManager pluginManager, ref GameData data)
 		{
 			string cid = data?.NewData?.CarId, gid = pluginManager?.GameName;
-            if (joy1 >= 0) // in my test, JoystickPlugin did not appear until 15 iterations
-            {
-				if (20 < ++joy1)
-				{
-					List<string> foo = pluginManager.GetAllPropertiesNames().FindAll(s => s.StartsWith("JoystickPlugin."));
-					if (0 < foo.Count)
-					{
-						Msg = $"Init():  {foo.Count} properties";
-						joy1 = -1;
-					}
-				} else if (50 < joy1)
-                    joy1 = -1;
-            }
-            if (0 < cid?.Length && cid != CurrentCar && 0 < gid?.Length && 0 < simValues.Count) 
-				CarChange(cid, gid);                // disable popup
+
+			if (0 < cid?.Length && cid != CurrentCar && 0 < gid?.Length && 0 < simValues.Count) 
+				CarChange(cid, gid);				// disable popup
+
+			if (joy1 < 0) // in my test, JoystickPlugin did not appear until 15 iterations
+				InitDI(pluginManager);
+			else if (0 < joy1)
+				RunDI(pluginManager);
 		}
 
 		internal void OOpsMB()
 		{
 			Info(Msg);						// prefixes WebMenu.My 
 			Control.Model.StatusText = Msg;
-            System.Windows.Forms.MessageBox.Show(Msg, "WebMenu");
+			System.Windows.Forms.MessageBox.Show(Msg, "WebMenu");
 			Msg = "";
 		}
 
