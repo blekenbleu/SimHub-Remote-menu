@@ -19,41 +19,28 @@ namespace blekenbleu.SimHub_Remote_menu
 		{
 			for (int c = 0; c < iniProps.Count; c++)
 			{
-				if (0 == iniProps[c]?.Length)	// missing property Name?
-				{
-					iniProps.RemoveAt(c);
-					if (c < vals.Count)
-						vals.RemoveAt(c);
-
-					if (c < stps.Count)
-						stps.RemoveAt(c);
-					c--;
+				if (string.IsNullOrEmpty(iniProps[c]))	// missing property Name?
 					continue;
-				}
-
-				iniDefaults.Add((c < vals.Count) ? vals[c] : "0");
 
 				// populate simValues for DisplayGrid ItemsSource
 				// WebMenu.dflt contents may mismatch those in Settings
-				// use Settings.properties value, if it exists, else default
-				string setting, dflt;
+				string defaultValue = c < vals.Count && !string.IsNullOrEmpty(vals[c]) ? vals[c] : "0";
 				// try matching Name from .ini
-				int index = Settings.Name.FindIndex(i => i == iniProps[c]);
-
-				if(0 <= index)
-				{
-					dflt = index < Settings.defaults.Count ? Settings.defaults[index] : iniDefaults[c];
-					setting = index < Settings.Value.Count ? Settings.Value[index] : dflt;
-				} else setting = dflt = iniDefaults[c];
-
+				int index = Settings.Name.FindIndex(n => n == iniProps[c]);
+				bool exists = index >= 0 && index < Settings.Value.Count && !string.IsNullOrEmpty(Settings.Value[index]);
+				// use Settings.properties value, if it exists, else defaultValue
+				string setting = exists ? Settings.Value[index] : defaultValue;
+				int step = c < stps.Count ? (int)(100 * float.Parse(stps[c])) : 10;
+				
+				iniDefaults.Add(defaultValue);
 				simValues.Add(new Values
 				{
 					Name = iniProps[c],
-					Default = dflt,			// replaced by JSON values for c < GamePropCount in CarChange()
+					Default = defaultValue,	// replaced by JSON values for c < GamePropCount in CarChange()
 					Previous = setting,		// replaced by Current in CarChange()
 					Current = setting		// replaced by JSON values in Init() and CarChange()
 				});
-				Steps.Add((c < stps.Count) ? (int)(100 * float.Parse(stps[c])) : 10);
+				Steps.Add(step);
 			}
 		}
 	}		// class WebMenu
