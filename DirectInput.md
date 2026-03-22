@@ -7,7 +7,8 @@ which licensed SimHub calls 60 times per second while running games or replays.
 
 - SimHub reads DirectInput using its Controllers plugin
 	- axes properties are exposed as `JoystickPlugin.*`
-	- button properties exposed as `InputStatus.JoystickPlugin.*`
+	- button properties exposed as `InputStatus.JoystickPlugin.*`  
+		.. but only after having been pressed.
 - SimHub concatenates DirectInput device names and property names using underscores, e.g.
 	- `InputStatus.JoystickPlugin._VKBsim_Gladiator_EVO_R___B12`
 	- `JoystickPlugin._VKBsim_Gladiator_EVO_R___1_AccelerationSlider0`
@@ -31,4 +32,10 @@ List<string> foo = pluginManager.GetAllPropertiesNames().FindAll(s => s.StartsWi
 		- which subsequently sorts those payloads
 - if/when DirectInput properties have been learned,
 	- `DataUpdate()` scans learned button and axis lists, invoking `SemaphoreQueue()` for each value change
-	
+
+### Invocations
+`Control` class methods will not directly invoke DirectInput methods.  
+Instead...  
+- set `joy1 = 0` to disable or `joy1 = -1` to run `InitDI()`, which will set `joy1 > 0` for `RunDI()`
+- set `joy1 = 0` to disable `RunDI()`,
+	- then populate `listDI` and clear `learnDI` for `RunDI()` to forward learned DirectInputs.
